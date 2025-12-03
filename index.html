@@ -1,280 +1,484 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Seguimiento de Pensum</title>
-
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"/>
-<script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.0/dist/chart.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.3/html2pdf.bundle.min.js"></script>
-
-<style>
-    /* Mantener la estética original y colores */
-    :root{
-        --color-primary: #007bff;
-        --color-secondary: #0056b3;
-        --color-background-light: #f4f7f6;
-        --color-card-light: #ffffff;
-        --color-text-light: #333;
-        --color-default-border: #e0e0e0;
-        --status-pendiente: #dc3545; /* Rojo para Pendiente */
-        --status-cursando: #ffc107; /* Amarillo para Cursando */
-        --status-completada: #28a745; /* Verde para Completada */
-
-        /* Colores de Mérito (Nuevos) */
-        --merit-cum-color: #ffc107; /* Amarillo */
-        --merit-magna-color: #28a745; /* Verde */
-        --merit-summ-color: #007bff; /* Azul */
-    }
-    .dark-mode {
-        --color-background-light: #121212;
-        --color-card-light: #1e1e1e;
-        --color-text-light: #f0f0f0;
-        --color-primary: #4a90e2;
-        --color-secondary: #357bd8;
-        --color-default-border: #333;
-        /* Adaptación de colores de Mérito en Dark Mode */
-        --merit-cum-color: #ffeb3b; /* Amarillo brillante */
-        --merit-magna-color: #4caf50; /* Verde brillante */
-        --merit-summ-color: #2196f3; /* Azul brillante */
-    }
-
-    body{
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        margin:0;
-        padding:20px;
-        background-color:var(--color-background-light);
-        color:var(--color-text-light);
-        min-height:100vh;
-        transition: background-color .25s, color .25s;
-    }
-
-    .top-buttons{ display:flex; justify-content:flex-end; gap:10px; margin-bottom:12px; flex-wrap:wrap; }
-    .top-button{ 
-        padding:10px 12px; 
-        background-color:var(--color-primary); /* Default/fallback */ 
-        color:white; 
-        border:none; 
-        border-radius:8px; 
-        cursor:pointer; 
-        font-weight:600; 
-        display:flex; 
-        gap:8px; 
-        align-items:center; 
-    }
-    .top-button i{ font-size:1em; }
-    .top-button:hover{ background-color:var(--color-secondary); transform: translateY(-2px); }
-
-    /* Estilos de Botones de Gestión Personalizados */
-    #add-materia-button{ background-color: #28a745; } /* Verde - Añadir */
-    #add-materia-button:hover{ background-color:#1e7e34; }
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Seguimiento de Pensum</title>
     
-    #add-cuatri-button{ background-color: #17a2b8; } /* Cian - Añadir */
-    #add-cuatri-button:hover{ background-color: #138496; }
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"/>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.0/dist/chart.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.3/html2pdf.bundle.min.js"></script>
     
-    #remove-cuatri-button{ background-color: #dc3545; } /* Rojo - Eliminar */
-    #remove-cuatri-button:hover{ background-color: #c82333; }
-    
-    #mode-toggle{ background-color: #6f42c1; } /* Púrpura - Config/UI */
-    #mode-toggle:hover{ background-color: #5d35a5; }
+    <style>    
+        /* Mantener la estética original y colores */    
+        :root{        
+            --color-primary: #007bff;        
+            --color-secondary: #0056b3;        
+            --color-background-light: #f4f7f6;        
+            --color-card-light: #ffffff;        
+            --color-text-light: #333;        
+            --color-default-border: #e0e0e0;        
+            --status-pendiente: #dc3545; /* Rojo para Pendiente */        
+            --status-cursando: #ffc107; /* Amarillo para Cursando */        
+            --status-completada: #28a745; /* Verde para Completada */
+            
+            /* Colores de Mérito (Nuevos) */        
+            --merit-cum-color: #ffc107; /* Amarillo */        
+            --merit-magna-color: #28a745; /* Verde */        
+            --merit-summ-color: #007bff; /* Azul */    
+        }    
+        .dark-mode {        
+            --color-background-light: #121212;        
+            --color-card-light: #1e1e1e;        
+            --color-text-light: #f0f0f0;        
+            --color-primary: #4a90e2;        
+            --color-secondary: #357bd8;        
+            --color-default-border: #333;        
+            /* Adaptación de colores de Mérito en Dark Mode */        
+            --merit-cum-color: #ffeb3b; /* Amarillo brillante */        
+            --merit-magna-color: #4caf50; /* Verde brillante */        
+            --merit-summ-color: #2196f3; /* Azul brillante */    
+        }
+        
+        body{        
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;        
+            margin:0;        
+            padding:20px;        
+            background-color:var(--color-background-light);        
+            color:var(--color-text-light);        
+            min-height:100vh;        
+            transition: background-color .25s, color .25s;    
+        }
+        
+        .top-buttons{ 
+            display:flex; 
+            justify-content:flex-end; 
+            gap:10px; 
+            margin-bottom:12px; 
+            flex-wrap:wrap; 
+        }    
+        .top-button{         
+            padding:10px 12px;         
+            background-color:var(--color-primary); /* Default/fallback */         
+            color:white;         
+            border:none;         
+            border-radius:8px;         
+            cursor:pointer;         
+            font-weight:600;         
+            display:flex;         
+            gap:8px;         
+            align-items:center;     
+        }    
+        .top-button i{ 
+            font-size:1em; 
+        }    
+        .top-button:hover{ 
+            background-color:var(--color-secondary); 
+            transform: translateY(-2px); 
+        }
+        
+        /* Estilos de Botones de Gestión Personalizados */    
+        #add-materia-button{ 
+            background-color: #28a745; 
+        } /* Verde - Añadir */    
+        #add-materia-button:hover{ 
+            background-color:#1e7e34; 
+        }        
+        #add-cuatri-button{ 
+            background-color: #17a2b8; 
+        } /* Cian - Añadir */    
+        #add-cuatri-button:hover{ 
+            background-color: #138496; 
+        }        
+        #remove-cuatri-button{ 
+            background-color: #dc3545; 
+        } /* Rojo - Eliminar */    
+        #remove-cuatri-button:hover{ 
+            background-color: #c82333; 
+        }        
+        #mode-toggle{ 
+            background-color: #6f42c1; 
+        } /* Púrpura - Config/UI */    
+        #mode-toggle:hover{ 
+            background-color: #5d35a5; 
+        }
+        
+        #pdf-button{ 
+            background-color: #fd7e14; 
+        } /* Naranja - Exportar */    
+        #pdf-button:hover{ 
+            background-color: #da650d; 
+        }
+        
+        #restore-button{ 
+            background-color: #6c757d; 
+        } /* Gris - Reinicio/Ajuste */    
+        #restore-button:hover{ 
+            background-color: #5a6268; 
+        }
 
-    #pdf-button{ background-color: #fd7e14; } /* Naranja - Exportar */
-    #pdf-button:hover{ background-color: #da650d; }
-
-    #restore-button{ background-color: #6c757d; } /* Gris - Reinicio/Ajuste */
-    #restore-button:hover{ background-color: #5a6268; }
-
-
-    #pdf-spinner { display:none; margin-left:8px; }
-
-    /* ESTILOS DE ENCABEZADO Y CAMPO EDITABLE */
-    .main-header{ 
-        text-align:center; 
-        margin-bottom:18px; 
-        color:var(--color-primary); 
-        font-size:2.2em; 
-        border-bottom:3px solid var(--color-secondary);
-        padding-bottom:10px;
-        display: flex; 
-        justify-content: center;
-        align-items: center;
-        gap: 8px;
-    }
-    
-    #career-name-display {
-        display: inline-block;
-        min-width: 300px;
-        line-height: 1.2;
-        /* Ajuste: Nombre de la carrera más negrita */
-        font-weight: 800; 
-    }
-
-    #career-name-display[contenteditable="true"] {
-        border-bottom: 2px solid var(--color-primary);
-        padding: 0 5px;
-        background-color: rgba(0, 123, 255, 0.05);
-    }
-    #career-name-display:focus {
-        outline: none;
-    }
-    
-    /* CRUD botones pequeños (BASE) */
-    .crud-btn{ background:none; border:none; cursor:pointer; font-size:1.05rem; padding:6px; border-radius:6px; display:inline-flex; align-items:center; justify-content:center; }
-    .crud-btn:hover{ background: rgba(0,0,0,0.04); }
-    
-    /* Icono de edición en materias (el lápiz original) */
-    .crud-btn.edit{ color:#b28f00; } /* Amarillo/Naranja */ 
-    .crud-btn.delete{ color:#c82333; } 
-    
-    /* ÍCONO DE EDICIÓN DEL ENCABEZADO */
-    .header-edit-btn {
-        font-size: 1.6rem; 
-        padding: 0;
-        margin-top: 5px;
-    }
-
-    /* FIN ESTILOS DE ENCABEZADO */
-
-    .container{ display:flex; gap:20px; align-items:flex-start; }
-    /* izquierda: controles/estadísticas, derecha: pensum (materias) */
-    .left-panel{ flex:0 0 30%; display:flex; flex-direction:column; gap:18px; min-width:260px; }
-    .right-panel{ flex:1; display:flex; flex-direction:column; gap:18px; min-width:520px; }
-
-    .card{ background-color:var(--color-card-light); padding:18px; border-radius:12px; box-shadow:0 6px 16px rgba(0,0,0,0.08); border-left:5px solid var(--color-primary); transition: background-color .25s; }
-
-    h2{ color:var(--color-primary); border-bottom:2px solid var(--color-default-border); padding-bottom:8px; margin-top:0; font-size:1.15em; }
-
-    /* PGA MODIFICADO */
-    .pga-summary{ text-align:center; }
-    .pga-values-row{ display:flex; justify-content:center; align-items:baseline; gap:10px; margin-top:5px; }
-    /* Estilos unificados para PGA y Porcentaje */
-    .pga-value-display{ font-size:2.6em; font-weight:700; color:var(--color-primary); }
-    .pga-separator{ font-size:2.6em; font-weight:700; color:#ccc; }
-
-    #merit-earned{ font-size:1.05em; padding:8px 12px; border-radius:8px; display:inline-block; margin-top:8px; font-weight:600; }
-    
-    /* ESTILOS DE MÉRITO */
-    .merit-cum{ 
-        background-color: var(--merit-cum-color); 
-        color: #333; 
-    } 
-    .dark-mode .merit-cum {
-        color: var(--color-text-light); 
-    }
-
-    .merit-magna{ background-color: var(--merit-magna-color); color: white; } 
-    .merit-summ{ background-color: var(--merit-summ-color); color: white; } 
-
-    /* charts */
-    .charts-container{ display:flex; gap:12px; }
-    .chart-card{ flex:1; padding:12px; }
-    .chart-wrapper{ display:flex; align-items:center; justify-content:center; height:150px; position:relative; }
-    .chart-text{ position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); font-weight:700; font-size:1.05em; text-align:center; color:var(--color-text-light); }
-
-    /* Pensum / cuatrimestres */
-    #pensum-container { display:flex; flex-direction:column; gap:12px; }
-    .cuatrimestre { padding:12px; border:1px solid var(--color-default-border); border-radius:8px; background-color:var(--color-card-light); }
-    .cuatrimestre h3 { margin:0 0 8px 0; color:var(--color-secondary); display:flex; justify-content:space-between; align-items:center; font-size:1.02em; }
-    .cuatri-credit { font-size:0.9em; color:var(--color-text-light); }
-
-    .materia-list{ list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:8px; }
-    .materia-item{ display:flex; justify-content:space-between; align-items:center; padding:8px 10px; border-radius:6px; border:1px solid var(--color-default-border); background-color:var(--color-background-light); }
-    .materia-info{ flex:1; font-size:0.95em; }
-
-    .materia-controls{ display:flex; gap:8px; align-items:center; min-width:210px; justify-content:flex-end; }
-
-    .status-select{ padding:6px 8px; border-radius:6px; border:1px solid var(--color-default-border); background-color:var(--color-card-light); font-weight:700; }
-    
-    /* COLORES DE ESTADO */
-    .status-select[data-status="pendiente"] { border-color: var(--status-pendiente); color:var(--status-pendiente); }
-    .status-select[data-status="cursando"] { border-color: var(--status-cursando); color:var(--status-cursando); }
-    .status-select[data-status="completada"] { border-color: var(--status-completada); color:var(--status-completada); }
-
-
-    .grade-input-wrapper input[type="number"]{ width:58px; padding:6px; text-align:right; border-radius:4px; border:1px solid #ccc; font-weight:700; }
-    .grade-display{ font-weight:700; min-width:40px; text-align:right; cursor:pointer; padding:6px 0; border-radius:4px; }
-    .grade-display:hover{ background-color: rgba(0,0,0,0.05); } 
-
-    .materia-item.grade-high { background-color: rgba(40,167,69,0.12); border-left:5px solid var(--status-completada); }
-    .materia-item.grade-med { background-color: rgba(255,193,7,0.12); border-left:5px solid var(--status-cursando); }
-
-    /* Estilos del Modal (Restaurados y ajustados para ser más compacto) */
-    .modal {
-        display: none; 
-        position: fixed; 
-        z-index: 1000; 
-        left: 0;
-        top: 0;
-        width: 100%;
-        height: 100%;
-        overflow: auto; 
-        background-color: rgba(0,0,0,0.6); 
-        backdrop-filter: blur(2px);
-    }
-
-    .modal-content {
-        background-color: var(--color-card-light);
-        margin: 8% auto; 
-        padding: 20px; 
-        border-radius: 12px;
-        border: 1px solid var(--color-default-border);
-        width: 90%; 
-        max-width: 450px; 
-        box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-        position: relative;
-    }
-
-    .close-button {
-        color: #aaa;
-        float: right;
-        font-size: 28px;
-        font-weight: bold;
-        cursor: pointer;
-    }
-    .close-button:hover,
-    .close-button:focus {
-        color: var(--status-pendiente);
-        text-decoration: none;
-    }
-    
-    /* Estilos para el formulario dentro del modal */
-    .modal-content label {
-        display: block;
-        margin-top: 8px; 
-        font-weight: 600;
-        color: var(--color-primary);
-    }
-    .modal-content input[type="text"], 
-    .modal-content input[type="number"], 
-    .modal-content select {
-        width: 100%;
-        padding: 8px; 
-        margin-top: 4px; 
-        margin-bottom: 8px; 
-        border: 1px solid #ccc;
-        border-radius: 6px;
-        box-sizing: border-box;
-    }
-    
-    /* PIE DE PÁGINA */
-    .author-footer {
-        margin-top: 30px;
-        padding-top: 15px;
-        border-top: 1px solid var(--color-default-border);
-        text-align: center;
-        font-size: 0.85em;
-        color: #999;
-    }
-
-    @media (max-width:900px){
-        .container{ flex-direction:column; }
-        .left-panel, .right-panel{ width:100%; flex:unset; }
-        .modal-content { margin: 20px auto; } 
-    }
-</style>
+        #pdf-spinner { 
+            display:none; 
+            margin-left:8px; 
+        }
+        /* ESTILOS DE ENCABEZADO Y CAMPO EDITABLE */    
+        .main-header{         
+            text-align:center;         
+            margin-bottom:18px;         
+            color:var(--color-primary);         
+            font-size:2.2em;         
+            border-bottom:3px solid var(--color-secondary);        
+            padding-bottom:10px;        
+            display: flex;         
+            justify-content: center;        
+            align-items: center;        
+            gap: 8px;    
+        }        
+        #career-name-display {        
+            display: inline-block;        
+            min-width: 300px;        
+            line-height: 1.2;        
+            /* Ajuste: Nombre de la carrera más negrita */        
+            font-weight: 800;     
+        }
+        
+        #career-name-display[contenteditable="true"] {        
+            border-bottom: 2px solid var(--color-primary);        
+            padding: 0 5px;        
+            background-color: rgba(0, 123, 255, 0.05);    
+        }    
+        #career-name-display:focus {        
+            outline: none;    
+        }        
+        /* CRUD botones pequeños (BASE) */    
+        .crud-btn{ 
+            background:none; 
+            border:none; 
+            cursor:pointer; 
+            font-size:1.05rem; 
+            padding:6px; 
+            border-radius:6px; 
+            display:inline-flex; 
+            align-items:center; 
+            justify-content:center; 
+        }    
+        .crud-btn:hover{ 
+            background: rgba(0,0,0,0.04); 
+        }        
+        /* Icono de edición en materias (el lápiz original) */    
+        .crud-btn.edit{ 
+            color:#b28f00; 
+        } /* Amarillo/Naranja */     
+        .crud-btn.delete{ 
+            color:#c82333; 
+        }         
+        /* ÍCONO DE EDICIÓN DEL ENCABEZADO */    
+        .header-edit-btn {        
+            font-size: 1.6rem;         
+            padding: 0;        
+            margin-top: 5px;    
+        }
+        /* FIN ESTILOS DE ENCABEZADO */
+        
+        .container{ 
+            display:flex; 
+            gap:20px; 
+            align-items:flex-start; 
+        }    
+        /* izquierda: controles/estadísticas, derecha: pensum (materias) */    
+        .left-panel{ 
+            flex:0 0 30%; 
+            display:flex; 
+            flex-direction:column; 
+            gap:18px; 
+            min-width:260px; 
+        }    
+        .right-panel{ 
+            flex:1; 
+            display:flex; 
+            flex-direction:column; 
+            gap:18px; 
+            min-width:520px; 
+        }
+        
+        .card{ 
+            background-color:var(--color-card-light); 
+            padding:18px; 
+            border-radius:12px; 
+            box-shadow:0 6px 16px rgba(0,0,0,0.08); 
+            border-left:5px solid var(--color-primary); 
+            transition: background-color .25s; 
+        }
+        
+        h2{ 
+            color:var(--color-primary); 
+            border-bottom:2px solid var(--color-default-border); 
+            padding-bottom:8px; 
+            margin-top:0; 
+            font-size:1.15em; 
+        }
+        
+        /* PGA MODIFICADO */    
+        .pga-summary{ 
+            text-align:center; 
+        }    
+        .pga-values-row{ 
+            display:flex; 
+            justify-content:center; 
+            align-items:baseline; 
+            gap:10px; 
+            margin-top:5px; 
+        }    
+        /* Estilos unificados para PGA y Porcentaje */    
+        .pga-value-display{ 
+            font-size:2.6em; 
+            font-weight:700; 
+            color:var(--color-primary); 
+        }    
+        .pga-separator{ 
+            font-size:2.6em; 
+            font-weight:700; 
+            color:#ccc; 
+        }
+        
+        #merit-earned{ 
+            font-size:1.05em; 
+            padding:8px 12px; 
+            border-radius:8px; 
+            display:inline-block; 
+            margin-top:8px; 
+            font-weight:600; 
+        }        
+        /* ESTILOS DE MÉRITO */    
+        .merit-cum{         
+            background-color: var(--merit-cum-color);         
+            color: #333;     
+        }     
+        .dark-mode .merit-cum {
+            color: var(--color-text-light);     
+        }
+        
+        .merit-magna{ 
+            background-color: var(--merit-magna-color); 
+            color: white; 
+        }     
+        .merit-summ{ 
+            background-color: var(--merit-summ-color); 
+            color: white; 
+        } 
+        /* charts */    
+        .charts-container{ 
+            display:flex; 
+            gap:12px; 
+        }    
+        .chart-card{ 
+            flex:1; 
+            padding:12px; 
+        }    
+        .chart-wrapper{ 
+            display:flex; 
+            align-items:center; 
+            justify-content:center; 
+            height:150px; 
+            position:relative; 
+        }    
+        .chart-text{ 
+            position:absolute; 
+            top:50%; 
+            left:50%; 
+            transform:translate(-50%,-50%); 
+            font-weight:700; 
+            font-size:1.05em; 
+            text-align:center; 
+            color:var(--color-text-light); 
+        }
+        
+        /* Pensum / cuatrimestres */    
+        #pensum-container { 
+            display:flex; 
+            flex-direction:column; 
+            gap:12px; 
+        }    
+        .cuatrimestre { 
+            padding:12px; 
+            border:1px solid var(--color-default-border); 
+            border-radius:8px; 
+            background-color:var(--color-card-light); 
+        }    
+        .cuatrimestre h3 { 
+            margin:0 0 8px 0; 
+            color:var(--color-secondary); 
+            display:flex; 
+            justify-content:space-between; 
+            align-items:center; 
+            font-size:1.02em; 
+        }    
+        .cuatri-credit { 
+            font-size:0.9em; 
+            color:var(--color-text-light); 
+        }
+        
+        .materia-list{ 
+            list-style:none; 
+            padding:0; 
+            margin:0; 
+            display:flex; 
+            flex-direction:column; 
+            gap:8px; 
+        }    
+        .materia-item{ 
+            display:flex; 
+            justify-content:space-between; 
+            align-items:center; 
+            padding:8px 10px; 
+            border-radius:6px; 
+            border:1px solid var(--color-default-border); 
+            background-color:var(--color-background-light); 
+        }    
+        .materia-info{ 
+            flex:1; 
+            font-size:0.95em; 
+        }
+        
+        .materia-controls{ 
+            display:flex; 
+            gap:8px; 
+            align-items:center; 
+            min-width:210px; 
+            justify-content:flex-end; 
+        }
+        
+        .status-select{ 
+            padding:6px 8px; 
+            border-radius:6px; 
+            border:1px solid var(--color-default-border); 
+            background-color:var(--color-card-light); 
+            font-weight:700; 
+        }        
+        /* COLORES DE ESTADO */    
+        .status-select[data-status="pendiente"] { 
+            border-color: var(--status-pendiente); 
+            color:var(--status-pendiente); 
+        }    
+        .status-select[data-status="cursando"] { 
+            border-color: var(--status-cursando); 
+            color:var(--status-cursando); 
+        }    
+        .status-select[data-status="completada"] { 
+            border-color: var(--status-completada); 
+            color:var(--status-completada); 
+        }
+        
+        .grade-input-wrapper input[type="number"]{ 
+            width:58px; 
+            padding:6px; 
+            text-align:right; 
+            border-radius:4px; 
+            border:1px solid #ccc; 
+            font-weight:700; 
+        }    
+        .grade-display{ 
+            font-weight:700; 
+            min-width:40px; 
+            text-align:right; 
+            cursor:pointer; 
+            padding:6px 0; 
+            border-radius:4px; 
+        }    
+        .grade-display:hover{ 
+            background-color: rgba(0,0,0,0.05); 
+        } 
+        .materia-item.grade-high { 
+            background-color: rgba(40,167,69,0.12); 
+            border-left:5px solid var(--status-completada); 
+        }    
+        .materia-item.grade-med { 
+            background-color: rgba(255,193,7,0.12); 
+            border-left:5px solid var(--status-cursando); 
+        }
+        
+        /* Estilos del Modal (Restaurados y ajustados para ser más compacto) */    
+        .modal {        
+            display: none;         
+            position: fixed;         
+            z-index: 1000;         
+            left: 0;        
+            top: 0;        
+            width: 100%;        
+            height: 100%;        
+            overflow: auto;         
+            background-color: rgba(0,0,0,0.6);         
+            backdrop-filter: blur(2px);    
+        }
+        
+        .modal-content {        
+            background-color: var(--color-card-light);        
+            margin: 8% auto;         
+            padding: 20px;         
+            border-radius: 12px;        
+            border: 1px solid var(--color-default-border);        
+            width: 90%;         
+            max-width: 450px;         
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);        
+            position: relative;    
+        }
+        
+        .close-button {        
+            color: #aaa;        
+            float: right;        
+            font-size: 28px;        
+            font-weight: bold;        
+            cursor: pointer;    
+        }    
+        .close-button:hover,    
+        .close-button:focus {        
+            color: var(--status-pendiente);        
+            text-decoration: none;    
+        }        
+        /* Estilos para el formulario dentro del modal */    
+        .modal-content label {        
+            display: block;        
+            margin-top: 8px;         
+            font-weight: 600;        
+            color: var(--color-primary);    
+        }    
+        .modal-content input[type="text"],     
+        .modal-content input[type="number"],     
+        .modal-content select {        
+            width: 100%;        
+            padding: 8px;         
+            margin-top: 4px;         
+            margin-bottom: 8px;         
+            border: 1px solid #ccc;        
+            border-radius: 6px;        
+            box-sizing: border-box;    
+        }        
+        /* PIE DE PÁGINA */    
+        .author-footer {        
+            margin-top: 30px;        
+            padding-top: 15px;        
+            border-top: 1px solid var(--color-default-border);        
+            text-align: center;        
+            font-size: 0.85em;        
+            color: #999;    
+        }
+        
+        @media (max-width:900px){        
+            .container{ 
+                flex-direction:column; 
+            }        
+            .left-panel, .right-panel{ 
+                width:100%; 
+                flex:unset; 
+            }        
+            .modal-content { 
+                margin: 20px auto; 
+            }     
+        }
+    </style>
 </head>
+
 <body>
     <div class="top-buttons">
         <button id="add-materia-button" class="top-button"><i class="fas fa-plus-circle"></i> Añadir Materia</button>
@@ -295,6 +499,7 @@
                 <i class="fas fa-pencil-alt"></i>
             </button>
         </h1>
+        
         <div class="container">
             <div class="left-panel">
                 <div class="card">
@@ -325,7 +530,7 @@
                     </div>
                     <div><span id="merit-earned" style="background:gray;color:white;">SIN MÉRITO</span></div>
                 </div>
-
+                
                 <div class="card">
                     <h2><i class="fas fa-chart-pie"></i> Gráficos</h2>
                     <div class="charts-container">
@@ -346,7 +551,7 @@
                     </div>
                 </div>
             </div>
-
+            
             <div class="right-panel">
                 <div class="card" id="pensum-container">
                     <h2><i class="fas fa-list"></i> Pensum (<span id="cuatrimestre-count">12</span> Cuatrimestres)</h2>
@@ -355,11 +560,11 @@
                 </div>
             </div>
         </div>
-        
-        <footer class="author-footer">
-            Hecho por JCryptico
-        </footer>
     </div>
+
+    <footer class="author-footer">
+        Hecho por JCryptico
+    </footer>
 
     <div id="materia-modal" class="modal">
         <div class="modal-content">
@@ -391,951 +596,955 @@
         </div>
     </div>
 
-<script>
-/* ============================================================
-    CONFIGURACIÓN EDITABLE: DEFAULT_PENSUM (12 cuatrimestres x 5 materias)
-    ============================================================ */
-// Definición de la estructura base (vacía o con ejemplos)
-const DEFAULT_CUATRI_COUNT = 12;
-const DEFAULT_MATERIAS_PER_CUATRI = 5;
+    <script>
+        /* ============================================================
+            CONFIGURACIÓN EDITABLE: DEFAULT_PENSUM 
+        ============================================================ */
+        // Definición de la estructura base (vacía o con ejemplos)
+        const DEFAULT_CUATRI_COUNT = 12;
+        const DEFAULT_MATERIAS_PER_CUATRI = 5;
 
-function buildDefaultPensum(cuatriCount = DEFAULT_CUATRI_COUNT, includeMaterias = true){
-    const base = [];
-    for (let i = 1; i <= cuatriCount; i++) {
-        const materias = [];
-        if (includeMaterias) {
-            for (let j = 1; j <= DEFAULT_MATERIAS_PER_CUATRI; j++) {
-                materias.push({
-                    code: `C${i}M${j}`,
-                    name: `Materia ${j} - Cuatrimestre ${i}`,
-                    credits: 3,
-                    status: 'pendiente', 
-                    grade: 0,
-                    cuatrimestre: i
+        function buildDefaultPensum(cuatriCount = DEFAULT_CUATRI_COUNT, includeMaterias = true){
+            const base = [];
+            for (let i = 1; i <= cuatriCount; i++) {
+                const materias = [];
+                if (includeMaterias) {
+                    for (let j = 1; j <= DEFAULT_MATERIAS_PER_CUATRI; j++) {
+                        materias.push({
+                            code: `C${i}M${j}`,
+                            name: `Materia ${j} - Cuatrimestre ${i}`,
+                            credits: 3,
+                            status: 'pendiente', 
+                            grade: 0,
+                            cuatrimestre: i
+                        });
+                    }
+                }
+                base.push({ cuatrimestre: i, materias });
+            }
+            return base;
+        }
+
+        const INITIAL_PENSUM_STRUCTURE = buildDefaultPensum();
+        // NUEVO VALOR POR DEFECTO DEL NOMBRE DE CARRERA
+        const DEFAULT_CAREER_NAME = 'NOMBRE DE CARRERA O PENSUM';
+
+        /* Variables globales */
+        let allMaterias = [];    
+        let userMaterias = [];    
+        let materiaChart = null;
+        let creditChart = null;
+        let meritConfig = { summ:{pct:95,points:4.00}, magna:{pct:90,points:3.80}, cum:{pct:85,points:3.50} };
+        const approvalGrade = 70;
+
+        /* Inicialización DOM */
+        document.addEventListener('DOMContentLoaded', () => {
+            loadStateFromStorage();
+            populateCuatrimestreSelect(); // Llama a populate después de cargar el estado
+            setupEventListeners();
+            initializeCharts();
+            renderPensumFromData();
+            calculatePGA();
+            // aplicar modo oscuro si fue guardado
+            if (localStorage.getItem('darkMode') === 'true') {
+                document.body.classList.add('dark-mode');
+                const mt = document.getElementById('mode-toggle');
+                mt.querySelector('i').className = 'fas fa-sun';
+            }
+        });
+
+        /* =========================================
+            CARGAR ESTADO DESDE LOCALSTORAGE
+        ========================================= */
+        function loadStateFromStorage(){
+            // La clave 'defaultPensum' se usa para saber si se deben cargar las materias por defecto o no (para el caso de Restaurar)
+            const loadDefault = localStorage.getItem('defaultPensum') !== 'removed';         
+            // userMaterias mantiene el estado (status/grade) de las materias por defecto y las añadidas por el usuario
+            const savedUser = JSON.parse(localStorage.getItem('userMateriasV3') || 'null');
+            userMaterias = Array.isArray(savedUser) ? savedUser : [];
+
+            const savedMerit = JSON.parse(localStorage.getItem('meritConfig') || 'null');
+            if (savedMerit) meritConfig = savedMerit;
+
+            // Load Career Name
+            const savedCareerName = localStorage.getItem('careerName');
+            document.getElementById('career-name-display').textContent = savedCareerName || DEFAULT_CAREER_NAME;
+
+            // >>> Sincronizar los inputs y spans de mérito con lo guardado
+            document.getElementById('merit-summ-pct').value = meritConfig.summ.pct;
+            document.getElementById('merit-magna-pct').value = meritConfig.magna.pct;
+            document.getElementById('merit-cum-pct').value = meritConfig.cum.pct;
+
+            document.getElementById('merit-summ-points').textContent = meritConfig.summ.points.toFixed(2);
+            document.getElementById('merit-magna-points').textContent = meritConfig.magna.points.toFixed(2);
+            document.getElementById('merit-cum-points').textContent = meritConfig.cum.points.toFixed(2);
+
+            // Materias eliminadas (solo si se cargan las predeterminadas)
+            const removedDefaults = loadDefault ? JSON.parse(localStorage.getItem('removedDefaultMaterias') || '[]') : [];
+
+            // --- LÓGICA DE CARGA DE CUATRIMESTRES Y MATERIAS ---        
+            // 1. Obtener el número máximo de cuatrimestres que deben existir
+            const maxCuatriFromUser = userMaterias.reduce((max, m) => Math.max(max, m.cuatrimestre || 1), 0);
+            const maxCuatri = Math.max(DEFAULT_CUATRI_COUNT, maxCuatriFromUser);        
+
+            // 2. Construir la estructura base (con o sin materias por defecto, pero con la cantidad correcta de cuatris)
+            const basePensum = loadDefault ? buildDefaultPensum(maxCuatri) : buildDefaultPensum(maxCuatri, false);         
+
+            // 3. Sincronizar la estructura base con los estados guardados
+            allMaterias = basePensum.map(cu => {
+                const materias = cu.materias
+                    // Filtrar materias por defecto eliminadas
+                    .filter(m => !removedDefaults.includes(m.code))
+                    // Aplicar estado/nota guardados
+                    .map(m => { 
+                         const s = userMaterias.find(u => u.code === m.code); 
+                         return s ? { ...m, ...s } : {...m}; 
+                     });
+                return { cuatrimestre: cu.cuatrimestre, materias };
+            });
+
+            // 4. Agregar materias de usuario (las que NO son parte del INITIAL_PENSUM_STRUCTURE)
+            userMaterias.forEach(um => {
+                const isDefault = INITIAL_PENSUM_STRUCTURE.some(cu => cu.materias.some(dm => dm.code === um.code));
+                        
+                if (!isDefault) {
+                    const c = allMaterias.find(ac => ac.cuatrimestre === (um.cuatrimestre || 1));
+                                
+                    // Si el cuatrimestre existe, lo añadimos
+                    if (c) {
+                        const existingIndex = c.materias.findIndex(m => m.code === um.code); 
+                        if (existingIndex === -1) {
+                            c.materias.push(um);
+                        } else {
+                            // En caso de duplicado (no debería pasar con un user-added code), lo actualizamos
+                            c.materias[existingIndex] = um;
+                        }
+                    } else {
+                        // Si el cuatrimestre de la materia de usuario no existía (ej: cuatri 13), lo creamos y añadimos la materia 
+                        allMaterias.push({ cuatrimestre: um.cuatrimestre, materias: [um] });
+                    }
+                }
+            });
+                
+            // Limpiar 'materiaStatusAndGrade' legacy (no se usa en V3)
+            localStorage.removeItem('materiaStatusAndGrade'); 
+        }
+
+        /* Guardar userMaterias (el estado completo de las materias modificadas/añadidas) */
+        function saveUserMaterias(){
+            // Solo guardamos las materias que:
+            // 1. Tengan estado/nota diferente al default (pendiente/0).
+            // 2. Sean añadidas por el usuario (no estén en INITIAL_PENSUM_STRUCTURE).
+            const toSave = [];
+            allMaterias.forEach(cu => {
+                cu.materias.forEach(m => {
+                    const isDefault = INITIAL_PENSUM_STRUCTURE.some(c => c.materias.some(dm => dm.code === m.code));
+                            
+                    // Si es default Y tiene cambios O si no es default (es de usuario)
+                    if (!isDefault || m.status !== 'pendiente' || m.grade > 0){
+                        toSave.push(m);
+                    }
+                });
+            });
+            userMaterias = toSave;
+            localStorage.setItem('userMateriasV3', JSON.stringify(userMaterias));
+        }
+
+        /* Renderizado de los cuatrimestres y sus materias */
+        function renderPensumFromData(){
+            const wrapper = document.getElementById('cuatrimestres-wrapper');
+            wrapper.innerHTML = '';
+            // Asegurarse de que allMaterias esté ordenada por cuatrimestre
+            allMaterias.sort((a,b) => a.cuatrimestre - b.cuatrimestre);
+
+            allMaterias.forEach(cu => {
+                const div = document.createElement('div');
+                div.className = 'cuatrimestre';
+                div.dataset.cuatrimestre = cu.cuatrimestre;
+                div.innerHTML = `
+                    <h3>Cuatrimestre ${cu.cuatrimestre} <span class="cuatri-credit">(${computeCreditsForCuatrimestre(cu)} créditos)</span></h3>
+                    <ul class="materia-list" id="cuatri-${cu.cuatrimestre}-list"></ul>
+                `;
+                wrapper.appendChild(div);
+
+                const ul = div.querySelector('.materia-list');
+                cu.materias.sort((a,b) => a.code.localeCompare(b.code)); 
+                cu.materias.forEach((m, idx) => {
+                    const li = createMateriaItemDOM(m);
+                    ul.appendChild(li);
+                });
+            });
+
+            // Actualizar el contador de cuatrimestres
+            document.getElementById('cuatrimestre-count').textContent = allMaterias.length;
+
+            // Recalcular el PGA
+            calculatePGA();
+                
+            // Volver a poblar el select de cuatrimestres para el modal
+            populateCuatrimestreSelect();
+        }
+
+        /* Calcula créditos de un cuatrimestre */
+        function computeCreditsForCuatrimestre(cu){
+            return cu.materias.reduce((s,m)=> s + (parseInt(m.credits) || 0), 0);
+        }
+
+        /* Crea el LI DOM para una materia (incluye Edit y Delete) */
+        function createMateriaItemDOM(materia){
+            const li = document.createElement('li');
+            li.className = 'materia-item';
+            li.dataset.materia = JSON.stringify(materia);
+            li.dataset.status = materia.status;
+
+            li.innerHTML = `
+                <div class="materia-info"><strong>${materia.code}</strong> ${materia.name} · Crédito: ${materia.credits}</div>
+                <div class="materia-controls"></div>
+            `;
+            updateMateriaItemControls(li, materia);
+            updateMateriaItemStyle(li, materia);
+            return li;
+        }
+
+        /* Actualiza los controles de la materia: select estado, input nota, iconos editar/eliminar */
+        function updateMateriaItemControls(li, materia){
+            const controls = li.querySelector('.materia-controls');
+            controls.innerHTML = '';
+
+            // Estado select (pequeño)
+            const sel = document.createElement('select');
+            sel.className = 'status-select';
+            sel.dataset.status = materia.status;
+            sel.innerHTML = `
+                <option value="pendiente">Pendiente</option>
+                <option value="cursando">Cursando</option>
+                <option value="completada">Completada</option>
+            `;
+            sel.value = materia.status;
+            // Listener para manejar el cambio de estado (incluyendo el reset de nota)
+            sel.addEventListener('change', function(){
+                this.dataset.status = this.value;
+                // LLAMAMOS A LA FUNCIÓN DE CAMBIO DE ESTADO
+                changeMateriaStatus(li, this.value);
+            });
+            controls.appendChild(sel);
+
+            // LÓGICA DE VISIBILIDAD Y EDICIÓN RÁPIDA DE NOTA
+            const gradeIsSet = materia.grade > 0;
+            const isCompletada = materia.status === 'completada';
+
+            // 1. Input nota
+            const gw = document.createElement('div');
+            gw.className = 'grade-input-wrapper';
+            gw.style.display = 'none'; // Por defecto oculto
+
+            if (isCompletada) {
+                gw.innerHTML = `<input type="number" min="0" max="100" maxlength="3" value="${materia.grade > 0 ? materia.grade : ''}" />`;
+                controls.appendChild(gw);
+                // Mostrar el input si está completada y sin nota para forzar el ingreso
+                if (!gradeIsSet) gw.style.display = 'block';
+            }
+
+            // 2. grade-display (nota estática con %, click para editar)
+            const gd = document.createElement('span');
+            gd.className = 'grade-display';
+            gd.textContent = gradeIsSet ? `${materia.grade}%` : '---';
+            // Mostrar el display si: NO está completada (muestra ---) O si está completada y tiene nota
+            gd.style.display = !isCompletada || (isCompletada && gradeIsSet) ? 'inline-block' : 'none';
+                    
+            // Edición rápida: al hacer clic en el span (gd)
+            if (isCompletada && gw.querySelector('input')){
+                gd.addEventListener('click', function(){
+                    gd.style.display = 'none'; // Ocultar span
+                    gw.style.display = 'block'; // Mostrar input
+                    const input = gw.querySelector('input');
+                    input.value = materia.grade > 0 ? materia.grade : ''; // Cargar nota actual o vacío
+                    input.focus();
+                    input.select();
+                });
+            }
+            controls.appendChild(gd);
+
+            // Edit button (amarillo)
+            const editBtn = document.createElement('button');
+            editBtn.className = 'crud-btn edit';
+            editBtn.title = 'Editar';
+            editBtn.innerHTML = `<i class="fas fa-edit"></i>`;
+            editBtn.addEventListener('click', () => openModal('edit', JSON.parse(li.dataset.materia)));
+            controls.appendChild(editBtn);
+
+            // Delete button (rojo)
+            const delBtn = document.createElement('button');
+            delBtn.className = 'crud-btn delete';
+            delBtn.title = 'Eliminar';
+            delBtn.innerHTML = `<i class="fas fa-trash-alt"></i>`;
+            delBtn.addEventListener('click', () => {
+                if (confirm('¿Eliminar esta materia?')) {
+                    const m = JSON.parse(li.dataset.materia);
+                    removeMateriaByCode(m.code, m.cuatrimestre);
+                }
+            });
+            controls.appendChild(delBtn);
+
+            // Listeners para el input de nota: blur y Enter
+            const inputNota = gw.querySelector('input');
+            if (inputNota){
+                inputNota.addEventListener('blur', () => processGrade(inputNota, li));
+                inputNota.addEventListener('keydown', (e) => { 
+                     if (e.key === 'Enter'){ 
+                         e.preventDefault(); 
+                         processGrade(inputNota, li);
+                        inputNota.blur(); // Perder el foco después de guardar
+                    }
                 });
             }
         }
-        base.push({ cuatrimestre: i, materias });
-    }
-    return base;
-}
 
-const INITIAL_PENSUM_STRUCTURE = buildDefaultPensum();
-// NUEVO VALOR POR DEFECTO DEL NOMBRE DE CARRERA
-const DEFAULT_CAREER_NAME = 'NOMBRE DE CARRERA O PENSUM';
+        function changeMateriaStatus(li, newStatus){
+            // Obtener la materia actual del dataset del LI
+            let materia = JSON.parse(li.dataset.materia);
+                
+            const wasCompleted = materia.status === 'completada';
 
+            // 1. Actualizar estado y nota en el objeto materia
+            materia.status = newStatus;
+            // Si cambia de COMPLETADA a otro estado, la nota se pone a 0
+            if (wasCompleted && newStatus !== 'completada') {
+                materia.grade = 0;
+            }
 
-/* Variables globales */
-let allMaterias = [];    
-let userMaterias = [];    
-let materiaChart = null;
-let creditChart = null;
-let meritConfig = { summ:{pct:95,points:4.00}, magna:{pct:90,points:3.80}, cum:{pct:85,points:3.50} };
-const approvalGrade = 70;
+            // 2. Actualizar la materia en allMaterias
+            updateMateriaInAllMaterias(materia);
+                
+            // 3. Actualizar dataset y persistencia local (userMaterias)
+            li.dataset.materia = JSON.stringify(materia);
+            li.dataset.status = newStatus; // Esto dispara el estilo de color del select por CSS
 
-/* Inicialización DOM */
-document.addEventListener('DOMContentLoaded', () => {
-    loadStateFromStorage();
-    populateCuatrimestreSelect(); // Llama a populate después de cargar el estado
-    setupEventListeners();
-    initializeCharts();
-    renderPensumFromData();
-    calculatePGA();
-    // aplicar modo oscuro si fue guardado
-    if (localStorage.getItem('darkMode') === 'true') {
-        document.body.classList.add('dark-mode');
-        const mt = document.getElementById('mode-toggle');
-        mt.querySelector('i').className = 'fas fa-sun';
-    }
-});
+            saveUserMaterias(); // Guarda el estado actualizado en localStorage
+                
+            // 4. Sincronización Directa: Redibujar SOLAMENTE los controles de la materia.
+            updateMateriaItemControls(li, materia);
+            updateMateriaItemStyle(li, materia);
+                
+            // 5. Recalcular PGA y gráficas (necesario al cambiar estado/nota)
+            calculatePGA();
+        }
 
-/* =========================================
-    CARGAR ESTADO DESDE LOCALSTORAGE
-    ========================================= */
-function loadStateFromStorage(){
-    // La clave 'defaultPensum' se usa para saber si se deben cargar las materias por defecto o no (para el caso de Restaurar)
-    const loadDefault = localStorage.getItem('defaultPensum') !== 'removed'; 
-    
-    // userMaterias mantiene el estado (status/grade) de las materias por defecto y las añadidas por el usuario
-    const savedUser = JSON.parse(localStorage.getItem('userMateriasV3') || 'null');
-    userMaterias = Array.isArray(savedUser) ? savedUser : [];
+        /** * Función para actualizar la nota de una materia y asegurar la persistencia.
+         * @param {HTMLInputElement} inputElem - El elemento input de la nota.
+         * @param {HTMLLIElement} liRef - La referencia al elemento LI de la materia. 
+         */
+        function processGrade(inputElem, liRef = null){
+            if (!inputElem) return;
+            let value = parseInt(inputElem.value) || 0;
+            value = Math.max(0, Math.min(100, value));
+            inputElem.value = value || '';
+                
+            const li = liRef || inputElem.closest('.materia-item');
+            if (!li) return;
+                
+            let materia = JSON.parse(li.dataset.materia);
+                
+            if (materia.status === 'completada'){
+                materia.grade = value;
+                        
+                // 1. ACTUALIZAR EN allMaterias (EL ESTADO EN MEMORIA)
+                updateMateriaInAllMaterias(materia); 
+                
+                li.dataset.materia = JSON.stringify(materia);
 
-    const savedMerit = JSON.parse(localStorage.getItem('meritConfig') || 'null');
-    if (savedMerit) meritConfig = savedMerit;
+                // LÓGICA DE VISIBILIDAD DE NOTA (OCULTAR INPUT, MOSTRAR SPAN)
+                const gw = li.querySelector('.grade-input-wrapper');
+                const gd = li.querySelector('.grade-display');
 
-    // Load Career Name
-    const savedCareerName = localStorage.getItem('careerName');
-    document.getElementById('career-name-display').textContent = savedCareerName || DEFAULT_CAREER_NAME;
-
-    // >>> Sincronizar los inputs y spans de mérito con lo guardado
-    document.getElementById('merit-summ-pct').value = meritConfig.summ.pct;
-    document.getElementById('merit-magna-pct').value = meritConfig.magna.pct;
-    document.getElementById('merit-cum-pct').value = meritConfig.cum.pct;
-
-    document.getElementById('merit-summ-points').textContent = meritConfig.summ.points.toFixed(2);
-    document.getElementById('merit-magna-points').textContent = meritConfig.magna.points.toFixed(2);
-    document.getElementById('merit-cum-points').textContent = meritConfig.cum.points.toFixed(2);
-
-    // Materias eliminadas (solo si se cargan las predeterminadas)
-    const removedDefaults = loadDefault ? JSON.parse(localStorage.getItem('removedDefaultMaterias') || '[]') : [];
-
-    // --- LÓGICA DE CARGA DE CUATRIMESTRES Y MATERIAS ---
-    
-    // 1. Obtener el número máximo de cuatrimestres que deben existir
-    const maxCuatriFromUser = userMaterias.reduce((max, m) => Math.max(max, m.cuatrimestre || 1), 0);
-    const maxCuatri = Math.max(DEFAULT_CUATRI_COUNT, maxCuatriFromUser);
-    
-    // 2. Construir la estructura base (con o sin materias por defecto, pero con la cantidad correcta de cuatris)
-    const basePensum = loadDefault ? buildDefaultPensum(maxCuatri) : buildDefaultPensum(maxCuatri, false); 
-    
-    // 3. Sincronizar la estructura base con los estados guardados
-    allMaterias = basePensum.map(cu => {
-        const materias = cu.materias
-            // Filtrar materias por defecto eliminadas
-            .filter(m => !removedDefaults.includes(m.code))
-            // Aplicar estado/nota guardados
-            .map(m => {
-                 const s = userMaterias.find(u => u.code === m.code);
-                 return s ? { ...m, ...s } : {...m}; 
-            });
-        return { cuatrimestre: cu.cuatrimestre, materias };
-    });
-
-    // 4. Agregar materias de usuario (las que NO son parte del INITIAL_PENSUM_STRUCTURE)
-    userMaterias.forEach(um => {
-        const isDefault = INITIAL_PENSUM_STRUCTURE.some(cu => cu.materias.some(dm => dm.code === um.code));
-        
-        if (!isDefault) {
-            const c = allMaterias.find(ac => ac.cuatrimestre === (um.cuatrimestre || 1));
-            
-            // Si el cuatrimestre existe, lo añadimos
-            if (c) {
-                const existingIndex = c.materias.findIndex(m => m.code === um.code);
-                 if (existingIndex === -1) {
-                    c.materias.push(um);
+                if (value > 0) {
+                    if (gw) gw.style.display = 'none'; 
+                    if (gd) {
+                        gd.textContent = `${value}%`;
+                        gd.style.display = 'inline-block'; 
+                    }
                 } else {
-                    // En caso de duplicado (no debería pasar con un user-added code), lo actualizamos
-                    c.materias[existingIndex] = um;
+                    // Nota 0: volver a mostrar el input para reingreso (si existe el wrapper)
+                    if (gw) gw.style.display = 'block'; 
+                    if (gd) {
+                        gd.textContent = '---';
+                        gd.style.display = 'none';
+                    }
                 }
-            } else {
-                // Si el cuatrimestre de la materia de usuario no existía (ej: cuatri 13), lo creamos y añadimos la materia
-                 allMaterias.push({ cuatrimestre: um.cuatrimestre, materias: [um] });
+                        
+                updateMateriaItemStyle(li, materia);
+
+                // 2. PERSISTENCIA: GUARDAR EN localStorage (userMaterias)
+                saveUserMaterias(); 
+                        
+                // 3. ACTUALIZAR GRÁFICOS Y PGA
+                calculatePGA();
+            } 
+            // Si se llama processGrade pero el estado no es completada, solo aseguramos que el grade es 0 y guardamos.
+            else {
+                materia.grade = 0;
+                updateMateriaInAllMaterias(materia); 
+                li.dataset.materia = JSON.stringify(materia);
+                saveUserMaterias();
+                calculatePGA();
             }
         }
-    });
-    
-    // Limpiar 'materiaStatusAndGrade' legacy (no se usa en V3)
-    localStorage.removeItem('materiaStatusAndGrade'); 
-}
 
-/* Guardar userMaterias (el estado completo de las materias modificadas/añadidas) */
-function saveUserMaterias(){
-    // Solo guardamos las materias que:
-    // 1. Tengan estado/nota diferente al default (pendiente/0).
-    // 2. Sean añadidas por el usuario (no estén en INITIAL_PENSUM_STRUCTURE).
-    const toSave = [];
-    allMaterias.forEach(cu => {
-        cu.materias.forEach(m => {
-            const isDefault = INITIAL_PENSUM_STRUCTURE.some(c => c.materias.some(dm => dm.code === m.code));
-            
-            // Si es default Y tiene cambios O si no es default (es de usuario)
-            if (!isDefault || m.status !== 'pendiente' || m.grade > 0){
-                toSave.push(m);
-            }
-        });
-    });
-    userMaterias = toSave;
-    localStorage.setItem('userMateriasV3', JSON.stringify(userMaterias));
-}
-
-
-/* Renderizado de los cuatrimestres y sus materias */
-function renderPensumFromData(){
-    const wrapper = document.getElementById('cuatrimestres-wrapper');
-    wrapper.innerHTML = '';
-    // Asegurarse de que allMaterias esté ordenada por cuatrimestre
-    allMaterias.sort((a,b) => a.cuatrimestre - b.cuatrimestre);
-
-    allMaterias.forEach(cu => {
-        const div = document.createElement('div');
-        div.className = 'cuatrimestre';
-        div.dataset.cuatrimestre = cu.cuatrimestre;
-        div.innerHTML = `
-            <h3>Cuatrimestre ${cu.cuatrimestre} <span class="cuatri-credit">(${computeCreditsForCuatrimestre(cu)} créditos)</span></h3>
-            <ul class="materia-list" id="cuatri-${cu.cuatrimestre}-list"></ul>
-        `;
-        wrapper.appendChild(div);
-
-        const ul = div.querySelector('.materia-list');
-        cu.materias.sort((a,b) => a.code.localeCompare(b.code)); 
-        cu.materias.forEach((m, idx) => {
-            const li = createMateriaItemDOM(m);
-            ul.appendChild(li);
-        });
-    });
-    
-    // Actualizar el contador de cuatrimestres
-    document.getElementById('cuatrimestre-count').textContent = allMaterias.length;
-
-    // Recalcular el PGA
-    calculatePGA();
-    
-    // Volver a poblar el select de cuatrimestres para el modal
-    populateCuatrimestreSelect();
-}
-
-/* Calcula créditos de un cuatrimestre */
-function computeCreditsForCuatrimestre(cu){
-    return cu.materias.reduce((s,m)=> s + (parseInt(m.credits) || 0), 0);
-}
-
-/* Crea el LI DOM para una materia (incluye Edit y Delete) */
-function createMateriaItemDOM(materia){
-    const li = document.createElement('li');
-    li.className = 'materia-item';
-    li.dataset.materia = JSON.stringify(materia);
-    li.dataset.status = materia.status;
-
-    li.innerHTML = `
-        <div class="materia-info"><strong>${materia.code}</strong> ${materia.name} · Crédito: ${materia.credits}</div>
-        <div class="materia-controls"></div>
-    `;
-    updateMateriaItemControls(li, materia);
-    updateMateriaItemStyle(li, materia);
-    return li;
-}
-
-/* Actualiza los controles de la materia: select estado, input nota, iconos editar/eliminar */
-function updateMateriaItemControls(li, materia){
-    const controls = li.querySelector('.materia-controls');
-    controls.innerHTML = '';
-
-    // Estado select (pequeño)
-    const sel = document.createElement('select');
-    sel.className = 'status-select';
-    sel.dataset.status = materia.status;
-    sel.innerHTML = `
-        <option value="pendiente">Pendiente</option>
-        <option value="cursando">Cursando</option>
-        <option value="completada">Completada</option>
-    `;
-    sel.value = materia.status;
-    // Listener para manejar el cambio de estado (incluyendo el reset de nota)
-    sel.addEventListener('change', function(){
-        this.dataset.status = this.value;
-        // LLAMAMOS A LA FUNCIÓN DE CAMBIO DE ESTADO
-        changeMateriaStatus(li, this.value);
-    });
-    controls.appendChild(sel);
-
-    // LÓGICA DE VISIBILIDAD Y EDICIÓN RÁPIDA DE NOTA
-    const gradeIsSet = materia.grade > 0;
-    const isCompletada = materia.status === 'completada';
-    
-    // 1. Input nota
-    const gw = document.createElement('div');
-    gw.className = 'grade-input-wrapper';
-    gw.style.display = 'none'; // Por defecto oculto
-
-    if (isCompletada) {
-        gw.innerHTML = `<input type="number" min="0" max="100" maxlength="3" value="${materia.grade > 0 ? materia.grade : ''}" />`;
-        controls.appendChild(gw);
-        // Mostrar el input si está completada y sin nota para forzar el ingreso
-        if (!gradeIsSet) gw.style.display = 'block';
-    }
-
-
-    // 2. grade-display (nota estática con %, click para editar)
-    const gd = document.createElement('span');
-    gd.className = 'grade-display';
-    gd.textContent = gradeIsSet ? `${materia.grade}%` : '---';
-    // Mostrar el display si: NO está completada (muestra ---) O si está completada y tiene nota
-    gd.style.display = !isCompletada || (isCompletada && gradeIsSet) ? 'inline-block' : 'none';
-    
-    
-    // Edición rápida: al hacer clic en el span (gd)
-    if (isCompletada && gw.querySelector('input')){
-        gd.addEventListener('click', function(){
-            gd.style.display = 'none'; // Ocultar span
-            gw.style.display = 'block'; // Mostrar input
-            const input = gw.querySelector('input');
-            input.value = materia.grade > 0 ? materia.grade : ''; // Cargar nota actual o vacío
-            input.focus();
-            input.select();
-        });
-    }
-    controls.appendChild(gd);
-
-    // Edit button (amarillo)
-    const editBtn = document.createElement('button');
-    editBtn.className = 'crud-btn edit';
-    editBtn.title = 'Editar';
-    editBtn.innerHTML = `<i class="fas fa-edit"></i>`;
-    editBtn.addEventListener('click', () => openModal('edit', JSON.parse(li.dataset.materia)));
-    controls.appendChild(editBtn);
-
-    // Delete button (rojo)
-    const delBtn = document.createElement('button');
-    delBtn.className = 'crud-btn delete';
-    delBtn.title = 'Eliminar';
-    delBtn.innerHTML = `<i class="fas fa-trash-alt"></i>`;
-    delBtn.addEventListener('click', () => {
-        if (confirm('¿Eliminar esta materia?')) {
-            const m = JSON.parse(li.dataset.materia);
-            removeMateriaByCode(m.code, m.cuatrimestre);
-        }
-    });
-    controls.appendChild(delBtn);
-
-    // Listeners para el input de nota: blur y Enter
-    const inputNota = gw.querySelector('input');
-    if (inputNota){
-        inputNota.addEventListener('blur', () => processGrade(inputNota, li));
-        inputNota.addEventListener('keydown', (e) => { 
-            if (e.key === 'Enter'){ 
-                e.preventDefault(); 
-                processGrade(inputNota, li);
-                inputNota.blur(); // Perder el foco después de guardar
-            }
-        });
-    }
-}
-
-function changeMateriaStatus(li, newStatus){
-    // Obtener la materia actual del dataset del LI
-    let materia = JSON.parse(li.dataset.materia);
-    
-    const wasCompleted = materia.status === 'completada';
-
-    // 1. Actualizar estado y nota en el objeto materia
-    materia.status = newStatus;
-    // Si cambia de COMPLETADA a otro estado, la nota se pone a 0
-    if (wasCompleted && newStatus !== 'completada') {
-        materia.grade = 0;
-    }
-
-    // 2. Actualizar la materia en allMaterias
-    updateMateriaInAllMaterias(materia);
-    
-    // 3. Actualizar dataset y persistencia local (userMaterias)
-    li.dataset.materia = JSON.stringify(materia);
-    li.dataset.status = newStatus; // Esto dispara el estilo de color del select por CSS
-
-    saveUserMaterias(); // Guarda el estado actualizado en localStorage
-    
-    // 4. Sincronización Directa: Redibujar SOLAMENTE los controles de la materia.
-    updateMateriaItemControls(li, materia);
-    updateMateriaItemStyle(li, materia);
-    
-    // 5. Recalcular PGA y gráficas (necesario al cambiar estado/nota)
-    calculatePGA();
-}
-
-/**
- * Función para actualizar la nota de una materia y asegurar la persistencia.
- * @param {HTMLInputElement} inputElem - El elemento input de la nota.
- * @param {HTMLLIElement} liRef - La referencia al elemento LI de la materia.
- */
-function processGrade(inputElem, liRef = null){
-    if (!inputElem) return;
-    let value = parseInt(inputElem.value) || 0;
-    value = Math.max(0, Math.min(100, value));
-    inputElem.value = value || '';
-    
-    const li = liRef || inputElem.closest('.materia-item');
-    if (!li) return;
-    
-    let materia = JSON.parse(li.dataset.materia);
-    
-    if (materia.status === 'completada'){
-        materia.grade = value;
-        
-        // 1. ACTUALIZAR EN allMaterias (EL ESTADO EN MEMORIA)
-        updateMateriaInAllMaterias(materia); 
-
-        li.dataset.materia = JSON.stringify(materia);
-
-        // LÓGICA DE VISIBILIDAD DE NOTA (OCULTAR INPUT, MOSTRAR SPAN)
-        const gw = li.querySelector('.grade-input-wrapper');
-        const gd = li.querySelector('.grade-display');
-
-        if (value > 0) {
-            if (gw) gw.style.display = 'none'; 
-            if (gd) {
-                gd.textContent = `${value}%`;
-                gd.style.display = 'inline-block'; 
-            }
-        } else {
-            // Nota 0: volver a mostrar el input para reingreso (si existe el wrapper)
-            if (gw) gw.style.display = 'block'; 
-            if (gd) {
-                gd.textContent = '---';
-                gd.style.display = 'none';
+        /** * Actualiza una materia en la estructura global allMaterias 
+         * @param {object} updatedMateria  
+         */
+        function updateMateriaInAllMaterias(updatedMateria){
+            const cu = allMaterias.find(c => c.cuatrimestre === updatedMateria.cuatrimestre);
+            if (cu) {
+                const idx = cu.materias.findIndex(m => m.code === updatedMateria.code);
+                if (idx !== -1) {
+                    cu.materias[idx] = updatedMateria;
+                }
             }
         }
-        
-        updateMateriaItemStyle(li, materia);
-        
-        // 2. PERSISTENCIA: GUARDAR EN localStorage (userMaterias)
-        saveUserMaterias(); 
-        
-        // 3. ACTUALIZAR GRÁFICOS Y PGA
-        calculatePGA();
-    } 
-    // Si se llama processGrade pero el estado no es completada, solo aseguramos que el grade es 0 y guardamos.
-    else {
-        materia.grade = 0;
-        updateMateriaInAllMaterias(materia); 
-        li.dataset.materia = JSON.stringify(materia);
-        saveUserMaterias();
-        calculatePGA();
-    }
-}
 
-/**
- * Actualiza una materia en la estructura global allMaterias
- * @param {object} updatedMateria 
- */
-function updateMateriaInAllMaterias(updatedMateria){
-    const cu = allMaterias.find(c => c.cuatrimestre === updatedMateria.cuatrimestre);
-    if (cu) {
-        const idx = cu.materias.findIndex(m => m.code === updatedMateria.code);
-        if (idx !== -1) {
-            cu.materias[idx] = updatedMateria;
+        /* Actualiza estilo según nota/estado */
+        function updateMateriaItemStyle(li, materia){
+            li.classList.remove('grade-high','grade-med');
+            if (materia.status === 'completada'){
+                if (materia.grade >= 90) li.classList.add('grade-high');
+                else if (materia.grade >= approvalGrade && materia.grade < 90) li.classList.add('grade-med');
+            }
         }
-    }
-}
 
+        function removeMateriaByCode(code, cuatrimestre){
+            // 1. Eliminar de allMaterias
+            const cu = allMaterias.find(c => c.cuatrimestre === cuatrimestre);
+            if (cu) {
+                const idx = cu.materias.findIndex(m => m.code === code);
+                if (idx !== -1){
+                    cu.materias.splice(idx, 1);
+                }
+            }
 
-/* Actualiza estilo según nota/estado */
-function updateMateriaItemStyle(li, materia){
-    li.classList.remove('grade-high','grade-med');
-    if (materia.status === 'completada'){
-        if (materia.grade >= 90) li.classList.add('grade-high');
-        else if (materia.grade >= approvalGrade && materia.grade < 90) li.classList.add('grade-med');
-    }
-}
-
-function removeMateriaByCode(code, cuatrimestre){
-    // 1. Eliminar de allMaterias
-    const cu = allMaterias.find(c => c.cuatrimestre === cuatrimestre);
-    if (cu) {
-        const idx = cu.materias.findIndex(m => m.code === code);
-        if (idx !== -1){
-            cu.materias.splice(idx, 1);
-        }
-    }
-
-    // 2. Persistencia de eliminadas por defecto
-    const isDefault = INITIAL_PENSUM_STRUCTURE.some(c => c.materias.some(dm => dm.code === code));
-    if (isDefault){
-        const removedDefaults = JSON.parse(localStorage.getItem('removedDefaultMaterias') || '[]');
-        if (!removedDefaults.includes(code)){
-            removedDefaults.push(code);
-            localStorage.setItem('removedDefaultMaterias', JSON.stringify(removedDefaults));
-        }
-    } 
-    
-    // 3. Persistencia: Eliminar de userMaterias
-    userMaterias = userMaterias.filter(u => !(u.code === code));
-    saveUserMaterias();
-    
-    // 4. Refrescar
-    renderPensumFromData();
-    calculatePGA();
-}
-
-
-/* ============================================================
-    Gestión de Cuatrimestres (Añadir/Eliminar)
-    ============================================================ */
-
-/** Añade un nuevo cuatrimestre al final del pensum */
-function addCuatrimestre(){
-    // El número del nuevo cuatrimestre es el mayor actual + 1
-    const maxCuatri = allMaterias.reduce((max, c) => Math.max(max, c.cuatrimestre), 0);
-    const newCuatriNum = maxCuatri + 1;
-    
-    // Crear el nuevo objeto cuatrimestre (vacío de materias)
-    const newCuatri = {
-        cuatrimestre: newCuatriNum,
-        materias: []
-    };
-    
-    // Añadir a la lista global
-    allMaterias.push(newCuatri);
-    
-    // No necesitamos guardar nada en localStorage aquí, ya que el estado se reconstruye
-    // a partir de userMaterias, y el nuevo cuatri se incluirá en la próxima carga 
-    // debido a la lógica de maxCuatri en loadStateFromStorage.
-    
-    // Renderizar para mostrar el cambio
-    renderPensumFromData();
-}
-
-/** Elimina el último cuatrimestre y sus materias */
-function removeLastCuatrimestre(){
-    if (allMaterias.length <= 1) {
-        alert('No se puede eliminar el último cuatrimestre. Debe haber al menos uno.');
-        return;
-    }
-    
-    // Usamos slice para obtener el objeto a eliminar sin modificar el array aún
-    const lastCuatri = allMaterias[allMaterias.length - 1]; 
-    
-    if (confirm(`¿Está seguro de eliminar el Cuatrimestre ${lastCuatri.cuatrimestre}? Esto eliminará permanentemente todas sus ${lastCuatri.materias.length} materias asociadas.`)) {
-        
-        // Ahora sí, eliminamos del array global
-        allMaterias.pop(); 
-        
-        // 1. Remover las materias de ese cuatrimestre de userMaterias y removedDefaults
-        lastCuatri.materias.forEach(m => {
-            // Eliminar de userMaterias
-            userMaterias = userMaterias.filter(u => u.code !== m.code);
-            
-            // Eliminar de removedDefaults si es materia por defecto
-            const isDefault = INITIAL_PENSUM_STRUCTURE.some(c => c.materias.some(dm => dm.code === m.code));
+            // 2. Persistencia de eliminadas por defecto
+            const isDefault = INITIAL_PENSUM_STRUCTURE.some(c => c.materias.some(dm => dm.code === code));
             if (isDefault){
-                let removedDefaults = JSON.parse(localStorage.getItem('removedDefaultMaterias') || '[]');
-                removedDefaults = removedDefaults.filter(rc => rc !== m.code);
-                localStorage.setItem('removedDefaultMaterias', JSON.stringify(removedDefaults));
-            }
-        });
-        
-        saveUserMaterias(); // Persistir los cambios
-
-        // 2. Renderizar
-        renderPensumFromData();
-    }
-}
-
-
-/* ============================================================
-    Gráficas (materias y créditos) - se actualizan en calculatePGA
-    ============================================================ */
-function initializeCharts(){
-    const materiaCtx = document.getElementById('materia-chart').getContext('2d');
-    const creditCtx = document.getElementById('credit-chart').getContext('2d');
-    const theme = getComputedStyle(document.body);
-    const primaryColor = theme.getPropertyValue('--color-primary').trim() || '#007bff';
-    const secondaryColor = theme.getPropertyValue('--color-secondary').trim() || '#0056b3';
-
-    if (materiaChart) try{ materiaChart.destroy(); }catch(e){}
-    if (creditChart) try{ creditChart.destroy(); }catch(e){}
-
-    materiaChart = new Chart(materiaCtx, {
-        type: 'doughnut',
-        data: { labels:['Completadas','Faltantes'], datasets:[{ data:[0,0], backgroundColor:[primaryColor,secondaryColor], borderWidth:0 }]},
-        options: { responsive:true, maintainAspectRatio:false, cutout:'70%', plugins:{legend:{display:false}, tooltip:{enabled:true}}}
-    });
-
-    creditChart = new Chart(creditCtx, {
-        type: 'doughnut',
-        data: { labels:['Aprobados','Faltantes'], datasets:[{ data:[0,0], backgroundColor:[primaryColor,secondaryColor], borderWidth:0 }]},
-        options: { responsive:true, maintainAspectRatio:false, cutout:'70%', plugins:{legend:{display:false}, tooltip:{enabled:true}}}
-    });
-}
-
-/* Función de conversión: Nota a Puntos PGA */
-function gradeToPGA(grade){
-    if (grade >= 90) return 4.0;
-    // Puntos intermedios: (Nota - Límite Inferior) / 10 * 1.0 (o 0.1 por punto) + Base
-    if (grade >= 80) return 3.0 + (grade - 80) * 0.1;
-    if (grade >= 70) return 2.0 + (grade - 70) * 0.1;
-    if (grade >= 60) return 1.0 + (grade - 60) * 0.1;
-    return 0.0;
-}
-
-function computeTotalPossibleCredits(){
-    // Suma todos los créditos de todas las materias actualmente en el pensum (allMaterias)
-    return allMaterias.reduce((sum, cu) => sum + cu.materias.reduce((s,m)=> s + (parseInt(m.credits)||0),0), 0);
-}
-function computeTotalMaterias(){
-    // Suma la cantidad total de materias actualmente en el pensum (allMaterias)
-    return allMaterias.reduce((sum, cu) => sum + cu.materias.length, 0);
-}
-
-
-function calculatePGA(){
-    let totalWeightedPoints = 0;
-    let totalCreditsCounted = 0;
-    let completedMaterias = 0; // Materias marcadas como 'completada'
-    let completedCredits = 0; // Créditos APROBADOS (nota >= approvalGrade)
-
-    allMaterias.forEach(cu => {
-        cu.materias.forEach(m => {
-            if (m.status === 'completada' && (m.grade >= 0)){
-                const pgaPoints = gradeToPGA(m.grade);
+                const removedDefaults = JSON.parse(localStorage.getItem('removedDefaultMaterias') || '[]');
+                if (!removedDefaults.includes(code)){
+                    removedDefaults.push(code);
+                    localStorage.setItem('removedDefaultMaterias', JSON.stringify(removedDefaults));
+                }
+            } 
                 
-                // Solo se cuentan créditos para PGA si están completadas (sin importar si aprobaron o no)
-                totalWeightedPoints += pgaPoints * (m.credits || 0);
-                totalCreditsCounted += (m.credits || 0);
-                completedMaterias++;
+            // 3. Persistencia: Eliminar de userMaterias
+            userMaterias = userMaterias.filter(u => !(u.code === code));
+            saveUserMaterias();
                 
-                // Solo se cuentan créditos APROBADOS (nota >= 70) para el progreso de créditos
-                if (m.grade >= approvalGrade) completedCredits += (m.credits || 0); 
-            }
-        });
-    });
-
-    // PGA Final
-    const pga = totalCreditsCounted > 0 ? (totalWeightedPoints / totalCreditsCounted).toFixed(2) : '0.00';
-    
-    // Porcentaje de PGA
-    const pgaFloat = parseFloat(pga);
-    const maxPGA = 4.00;
-    const maxPct = meritConfig.summ.pct; 
-    
-    // Cálculo del Porcentaje: (PGA / MaxPGA) * MaxPct
-    const pgaPercentage = totalCreditsCounted > 0 ? ((pgaFloat / maxPGA) * maxPct).toFixed(2) : '0.00';
-
-
-    // Actualizar los elementos de PGA
-    document.getElementById('pga-value').textContent = pga;
-    document.getElementById('pga-percentage').textContent = `${pgaPercentage}%`; 
-
-    updateMeritDisplay(pgaFloat);
-
-    // Actualizar graficos: materias y creditos con las funciones corregidas
-    const totalPossibleCredits = computeTotalPossibleCredits();
-    const totalMaterias = computeTotalMaterias();
-    updateCharts(completedMaterias, totalMaterias, completedCredits, totalPossibleCredits);
-}
-
-/* Mostrar el texto de Merito (Añadiendo clases para el color) */
-function updateMeritDisplay(pga){
-    const meritEl = document.getElementById('merit-earned');
-    meritEl.classList.remove('merit-summ', 'merit-magna', 'merit-cum');
-    meritEl.style.backgroundColor = ''; 
-    meritEl.style.color = ''; 
-
-    if (pga >= meritConfig.summ.points){ 
-        meritEl.textContent = 'SUMMA CUM LAUDE'; 
-        meritEl.classList.add('merit-summ'); 
-    }
-    else if (pga >= meritConfig.magna.points){ 
-        meritEl.textContent = 'MAGNA CUM LAUDE'; 
-        meritEl.classList.add('merit-magna'); 
-    }
-    else if (pga >= meritConfig.cum.points){ 
-        meritEl.textContent = 'CUM LAUDE'; 
-        meritEl.classList.add('merit-cum'); 
-    }
-    else {
-        meritEl.textContent = 'SIN MÉRITO';
-        meritEl.style.backgroundColor = 'gray';
-        meritEl.style.color = 'white';
-    }
-}
-
-/* Actualizar datasets de gráficas y textos */
-function updateCharts(completedM, totalM, completedC, totalPossibleCredits){
-    // Materias
-    const remainingM = Math.max(0, totalM - completedM);
-    materiaChart.data.datasets[0].data = [completedM, remainingM];
-    materiaChart.update();
-    // Texto de progreso de materias: "Completadas de Total"
-    document.getElementById('materia-chart-text').textContent = `${completedM} de ${totalM}`;
-
-    // Créditos 
-    const remainingC = Math.max(0, totalPossibleCredits - completedC);
-    creditChart.data.datasets[0].data = [completedC, remainingC];
-    creditChart.update();
-    // Texto de progreso de créditos: "Aprobados de Total"
-    document.getElementById('credit-chart-text').textContent = `${completedC} de ${totalPossibleCredits}`;
-
-    // Actualizar los créditos visibles en cada cuatri
-    document.querySelectorAll('.cuatrimestre').forEach(div => {
-        const c = parseInt(div.dataset.cuatrimestre);
-        const cuObj = allMaterias.find(x => x.cuatrimestre === c);
-        if (cuObj){
-            const span = div.querySelector('.cuatri-credit');
-            if (span) span.textContent = `(${computeCreditsForCuatrimestre(cuObj)} créditos)`;
+            // 4. Refrescar
+            renderPensumFromData();
+            calculatePGA();
         }
-    });
-}
 
-/* ============================================================
-    Utilidades: modal, eventos, persistencia
-    ============================================================ */
-function populateCuatrimestreSelect(){
-    const select = document.getElementById('materia-cuatrimestre');
-    select.innerHTML = '';
-    // El máximo de cuatrimestres ahora es dinámico
-    const maxCuatri = allMaterias.reduce((max, c) => Math.max(max, c.cuatrimestre), 1); 
+        /* ============================================================
+            Gestión de Cuatrimestres (Añadir/Eliminar)
+        ============================================================ */
 
-    for (let i=1;i<=maxCuatri;i++){
-        const o = document.createElement('option');
-        o.value = i; o.textContent = `Cuatrimestre ${i}`;
-        select.appendChild(o);
-    }
-}
+        /** Añade un nuevo cuatrimestre al final del pensum */
+        function addCuatrimestre(){
+            // El número del nuevo cuatrimestre es el mayor actual + 1
+            const maxCuatri = allMaterias.reduce((max, c) => Math.max(max, c.cuatrimestre), 0);
+            const newCuatriNum = maxCuatri + 1;
+                
+            // Crear el nuevo objeto cuatrimestre (vacío de materias)
+            const newCuatri = {
+                cuatrimestre: newCuatriNum,
+                materias: []
+            };
+                
+            // Añadir a la lista global
+            allMaterias.push(newCuatri);
+                
+            // No necesitamos guardar nada en localStorage aquí, ya que el estado se reconstruye
+            // a partir de userMaterias, y el nuevo cuatri se incluirá en la próxima carga 
+            // debido a la lógica de maxCuatri en loadStateFromStorage.
+                
+            // Renderizar para mostrar el cambio
+            renderPensumFromData();
+        }
 
-/* Modal open/close para add/edit */
-function openModal(mode, materia = null){
-    // Asegurar que el select esté poblado con el número actual de cuatrimestres
-    populateCuatrimestreSelect();
-    
-    const modal = document.getElementById('materia-modal');
-    const title = document.getElementById('modal-title');
-    const form = document.getElementById('materia-form');
-
-    form.reset();
-    document.getElementById('materia-old-code').value = '';
-
-    const materiaGradeInput = document.getElementById('materia-grade');
-    const materiaStatusSelect = document.getElementById('materia-status');
-    const materiaCodeInput = document.getElementById('materia-code');
-
-    if (mode === 'add'){
-        title.innerHTML = '<i class="fas fa-book"></i> Añadir Nueva Materia';
-        document.getElementById('materia-cuatrimestre').value = allMaterias.length > 0 ? allMaterias[allMaterias.length - 1].cuatrimestre : 1;
-        materiaStatusSelect.value = 'pendiente';
-        materiaGradeInput.disabled = true; 
-        materiaCodeInput.disabled = false; // Asegurar que sea editable en Add
-    } else if (mode === 'edit' && materia){
-        title.innerHTML = '<i class="fas fa-edit"></i> Editar Materia';
-        document.getElementById('materia-old-code').value = materia.code;
-        materiaCodeInput.value = materia.code;
-        document.getElementById('materia-name').value = materia.name;
-        document.getElementById('materia-credits').value = materia.credits;
-        document.getElementById('materia-cuatrimestre').value = materia.cuatrimestre || 1;
-        materiaStatusSelect.value = materia.status || 'pendiente';
-        materiaGradeInput.value = materia.grade || 0;
-        materiaGradeInput.disabled = materia.status !== 'completada'; 
-        materiaCodeInput.disabled = true; // No permitir cambiar el código en edición
-    }
-
-    modal.style.display = 'block';
-}
-
-function closeModal(){ document.getElementById('materia-modal').style.display = 'none'; }
-
-/* Submit modal -> agregar o editar */
-document.getElementById('materia-form').addEventListener('submit', function(e){
-    e.preventDefault();
-    // Recuperar oldCode del hidden field, no del input de código
-    const oldCode = document.getElementById('materia-old-code').value; 
-    
-    // Si estamos en modo edición, el código es el original, si no, es el nuevo
-    const codeInput = document.getElementById('materia-code');
-    const code = oldCode && codeInput.disabled ? oldCode : codeInput.value.trim().toUpperCase();
-
-    const name = document.getElementById('materia-name').value.trim();
-    const credits = parseInt(document.getElementById('materia-credits').value) || 3;
-    const cuatr = parseInt(document.getElementById('materia-cuatrimestre').value);
-    const status = document.getElementById('materia-status').value;
-    const grade = parseInt(document.getElementById('materia-grade').value) || 0;
-
-    if (!code || !name) { alert('Código y nombre son obligatorios'); return; }
-
-    const materiaObj = { code, name, credits, status, grade, cuatrimestre: cuatr };
-
-    // 1. Manejar la materia en la lista global (allMaterias)
-    // 1.1 Si estamos editando y el código viejo existe, removerlo
-    if (oldCode) {
-        allMaterias.forEach(c => {
-            const idx = c.materias.findIndex(m => m.code === oldCode);
-            if (idx !== -1) {
-                c.materias.splice(idx, 1);
+        /** Elimina el último cuatrimestre y sus materias */
+        function removeLastCuatrimestre(){
+            if (allMaterias.length <= 1) {
+                alert('No se puede eliminar el último cuatrimestre. Debe haber al menos uno.');
+                return;
             }
-        });
-    }
+                
+            // Usamos slice para obtener el objeto a eliminar sin modificar el array aún
+            const lastCuatri = allMaterias[allMaterias.length - 1]; 
+                 
+            if (confirm(`¿Está seguro de eliminar el Cuatrimestre ${lastCuatri.cuatrimestre}? Esto eliminará permanentemente todas sus ${lastCuatri.materias.length} materias asociadas.`)) {
+                        
+                // Ahora sí, eliminamos del array global
+                allMaterias.pop(); 
+                         
+                // 1. Remover las materias de ese cuatrimestre de userMaterias y removedDefaults
+                lastCuatri.materias.forEach(m => {
+                    // Eliminar de userMaterias
+                    userMaterias = userMaterias.filter(u => u.code !== m.code);
+                                
+                    // Eliminar de removedDefaults si es materia por defecto
+                    const isDefault = INITIAL_PENSUM_STRUCTURE.some(c => c.materias.some(dm => dm.code === m.code));
+                    if (isDefault){
+                        let removedDefaults = JSON.parse(localStorage.getItem('removedDefaultMaterias') || '[]');
+                        removedDefaults = removedDefaults.filter(rc => rc !== m.code);
+                        localStorage.setItem('removedDefaultMaterias', JSON.stringify(removedDefaults));
+                    }
+                });
+                        
+                saveUserMaterias(); // Persistir los cambios
 
-    // 1.2 Encontrar el cuatrimestre objetivo para agregar la materia
-    let cu = allMaterias.find(c => c.cuatrimestre === cuatr);
-    if (!cu) {
-        // Si el cuatrimestre no existe, se crea
-        cu = { cuatrimestre: cuatr, materias: [] };
-        allMaterias.push(cu);
-        allMaterias.sort((a,b) => a.cuatrimestre - b.cuatrimestre);
-    }
-    
-    // 1.3 Agregar la materia (ya sea nueva o editada)
-    cu.materias.push(materiaObj);
+                // 2. Renderizar
+                renderPensumFromData();
+            }
+        }
 
-    // 2. Limpiar el estado guardado del código viejo si este cambió
-    if (oldCode && oldCode !== code){
-         let removedDefaults = JSON.parse(localStorage.getItem('removedDefaultMaterias') || '[]');
-         removedDefaults = removedDefaults.filter(rc => rc !== oldCode);
-         localStorage.setItem('removedDefaultMaterias', JSON.stringify(removedDefaults));
-    }
+        /* ============================================================
+            Gráficas (materias y créditos) - se actualizan en calculatePGA
+        ============================================================ */
+        function initializeCharts(){
+            const materiaCtx = document.getElementById('materia-chart').getContext('2d');
+            const creditCtx = document.getElementById('credit-chart').getContext('2d');
+            const theme = getComputedStyle(document.body);
+            const primaryColor = theme.getPropertyValue('--color-primary').trim() || '#007bff';
+            const secondaryColor = theme.getPropertyValue('--color-secondary').trim() || '#0056b3';
 
-    // 3. Persistencia (userMaterias)
-    saveUserMaterias();
-    
-    // 4. Refrescar
-    renderPensumFromData();
-    closeModal();
-});
+            if (materiaChart) try{ materiaChart.destroy(); }catch(e){}
+            if (creditChart) try{ creditChart.destroy(); }catch(e){}
 
+            materiaChart = new Chart(materiaCtx, {
+                type: 'doughnut',
+                data: { labels:['Completadas','Faltantes'], datasets:[{ data:[0,0], backgroundColor:[primaryColor,secondaryColor], borderWidth:0 }]},
+                options: { responsive:true, maintainAspectRatio:false, cutout:'70%', plugins:{legend:{display:false}, tooltip:{enabled:true}}}
+            });
 
-/* Quitar modal al hacer click fuera */
-window.addEventListener('click', (e) => {
-    const modal = document.getElementById('materia-modal');
-    if (e.target === modal) closeModal();
-});
+            creditChart = new Chart(creditCtx, {
+                type: 'doughnut',
+                data: { labels:['Aprobados','Faltantes'], datasets:[{ data:[0,0], backgroundColor:[primaryColor,secondaryColor], borderWidth:0 }]},
+                options: { responsive:true, maintainAspectRatio:false, cutout:'70%', plugins:{legend:{display:false}, tooltip:{enabled:true}}}
+            });
+        }
 
-/* Evento: cuando cambia status en modal, habilitar grado si 'completada' */
-document.getElementById('materia-status').addEventListener('change', function(){
-    document.getElementById('materia-grade').disabled = this.value !== 'completada';
-});
+        /** * Función de conversión: Nota (0-100) a Puntos (0-4.00) PGA
+         * Esta conversión se usa SOLO para el display de PGA 4.00 y honores.
+         */
+        function gradeToPGA(grade){
+            // Usamos una fórmula precisa para la conversión a 4.00
+            const maxGrade = 100;
+            const maxPGA = 4.00;
+            
+            // Si la nota es 90 o más, se asume 4.00 (generalmente el límite para A/4.00)
+            if (grade >= 90) return 4.0;    
 
-// Función para guardar el nombre de la carrera 
-function saveCareerName(){
-    const headerEl = document.getElementById('career-name-display');
-    const newName = headerEl.textContent.trim();
-    
-    // Desactivar el modo de edición y guardar
-    headerEl.removeAttribute('contenteditable');
-    
-    if (newName) {
-        localStorage.setItem('careerName', newName);
-    } else {
-        // Si se deja vacío, revierte al nombre por defecto (el nuevo placeholder)
-        headerEl.textContent = DEFAULT_CAREER_NAME;
-        localStorage.removeItem('careerName');
-    }
-}
+            // Para notas menores a 90, se usa la escala lineal (ej: 80-89 = 3.0-3.9)
+            if (grade >= 80) return 3.0 + (grade - 80) * 0.1; 
+            if (grade >= 70) return 2.0 + (grade - 70) * 0.1; 
+            if (grade >= 60) return 1.0 + (grade - 60) * 0.1; 
+            return 0.0;
+        }
 
-// Función para activar el modo de edición
-function enableCareerEdit(){
-    const headerEl = document.getElementById('career-name-display');
-    headerEl.setAttribute('contenteditable', 'true');
-    headerEl.focus();
-    // Mover el cursor al final del texto para una mejor UX
-    const range = document.createRange();
-    const sel = window.getSelection();
-    range.selectNodeContents(headerEl);
-    range.collapse(false);
-    sel.removeAllRanges();
-    sel.addRange(range);
-}
+        function computeTotalPossibleCredits(){
+            // Suma todos los créditos de todas las materias actualmente en el pensum (allMaterias)
+            return allMaterias.reduce((sum, cu) => sum + cu.materias.reduce((s,m)=> s + (parseInt(m.credits)||0),0), 0);
+        }
+        function computeTotalMaterias(){
+            // Suma la cantidad total de materias actualmente en el pensum (allMaterias)
+            return allMaterias.reduce((sum, cu) => sum + cu.materias.length, 0);
+        }
 
-/* Botones top */
-function setupEventListeners(){
-    document.getElementById('add-materia-button').addEventListener('click', () => openModal('add'));
-    document.getElementById('add-cuatri-button').addEventListener('click', addCuatrimestre);
-    document.getElementById('remove-cuatri-button').addEventListener('click', removeLastCuatrimestre);
-    document.getElementById('mode-toggle').addEventListener('click', toggleDarkMode);
-    document.getElementById('pdf-button').addEventListener('click', generatePDF);
-    document.getElementById('restore-button').addEventListener('click', restoreDefaults);
-    document.getElementById('save-merit-button').addEventListener('click', saveMeritConfig);
+        // =========================================================================
+        // FUNCIÓN CRÍTICA: CALCULA EL ÍNDICE EN PORCENTAJE (UNICARIBE) Y EL PGA (4.00)
+        // =========================================================================
+        function calculatePGA(){
+            let totalWeightedPoints_PCT = 0; // Puntos ponderados en escala 100 (Nota * Crédito)
+            let totalWeightedPoints_PGA = 0; // Puntos ponderados en escala 4.00 (PGA * Crédito)
+            let totalCreditsCounted = 0;
+            let completedMaterias = 0; 
+            let completedCredits = 0; // Créditos APROBADOS (nota >= approvalGrade)
+            
+            allMaterias.forEach(cu => {
+                cu.materias.forEach(m => {
+                    if (m.status === 'completada' && (m.grade >= 0)){
+                        const gradePct = m.grade; // Nota en escala 0-100
+                        const pgaPoints = gradeToPGA(m.grade); // Conversión a 4.00
 
-    // Event listeners para el nombre de la carrera 
-    const careerNameEl = document.getElementById('career-name-display');
-    const editButton = document.getElementById('edit-career-button');
+                        // CÁLCULO EN ESCALA 100: Índice Acumulado Ponderado (el valor oficial)
+                        totalWeightedPoints_PCT += gradePct * (m.credits || 0);
 
-    if (careerNameEl) {
-        // Guardar cuando se pierde el foco (blur)
-        careerNameEl.addEventListener('blur', saveCareerName);
+                        // CÁLCULO EN ESCALA 4.00: Promedio de Puntos 4.00 Ponderado (solo para el display de PGA)
+                        totalWeightedPoints_PGA += pgaPoints * (m.credits || 0);
+
+                        totalCreditsCounted += (m.credits || 0);
+                        completedMaterias++;
+                        
+                        if (m.grade >= approvalGrade) completedCredits += (m.credits || 0); 
+                    }
+                });
+            });
+
+            // 1. Índice en Porcentaje (0-100)
+            const pgaPercentageValue = totalCreditsCounted > 0 
+                ? (totalWeightedPoints_PCT / totalCreditsCounted) 
+                : 0;
+
+            // 2. Índice en Escala 4.00 
+            const pgaValue = totalCreditsCounted > 0 
+                ? (totalWeightedPoints_PGA / totalCreditsCounted)
+                : 0;
+
+            // Redondeo final a dos decimales
+            const pgaPercentage = pgaPercentageValue.toFixed(2);
+            const pga = pgaValue.toFixed(2);
+            
+            // Actualizar los elementos de PGA
+            document.getElementById('pga-value').textContent = pga; // Puntos 4.00
+            document.getElementById('pga-percentage').textContent = `${pgaPercentage}%`; // Porcentaje 0-100
         
-        // Guardar cuando se presiona Enter (previene salto de línea)
-        careerNameEl.addEventListener('keydown', function(e){
-            if (e.key === 'Enter'){
-                e.preventDefault();
-                saveCareerName();
-                careerNameEl.blur(); // Quitar el foco después de guardar
+            updateMeritDisplay(parseFloat(pga)); // Usamos el pga flotante para la comparación de méritos
+
+            // Actualizar graficos:
+            const totalPossibleCredits = computeTotalPossibleCredits();
+            const totalMaterias = computeTotalMaterias();
+            updateCharts(completedMaterias, totalMaterias, completedCredits, totalPossibleCredits);
+        }
+        // =========================================================================
+
+
+        /* Mostrar el texto de Merito (Añadiendo clases para el color) */
+        function updateMeritDisplay(pga){
+            const meritEl = document.getElementById('merit-earned');
+            meritEl.classList.remove('merit-summ', 'merit-magna', 'merit-cum');
+            meritEl.style.backgroundColor = ''; 
+            meritEl.style.color = ''; 
+
+            if (pga >= meritConfig.summ.points){ 
+                meritEl.textContent = 'SUMMA CUM LAUDE'; 
+                meritEl.classList.add('merit-summ'); 
             }
+            else if (pga >= meritConfig.magna.points){ 
+                meritEl.textContent = 'MAGNA CUM LAUDE'; 
+                meritEl.classList.add('merit-magna'); 
+            }
+            else if (pga >= meritConfig.cum.points){ 
+                meritEl.textContent = 'CUM LAUDE'; 
+                meritEl.classList.add('merit-cum'); 
+            }
+            else {
+                meritEl.textContent = 'SIN MÉRITO';
+                meritEl.style.backgroundColor = 'gray';
+                meritEl.style.color = 'white';
+            }
+        }
+
+        /* Actualizar datasets de gráficas y textos */
+        function updateCharts(completedM, totalM, completedC, totalPossibleCredits){
+            // Materias
+            const remainingM = Math.max(0, totalM - completedM);
+            materiaChart.data.datasets[0].data = [completedM, remainingM];
+            materiaChart.update();
+            // Texto de progreso de materias: "Completadas de Total"
+            document.getElementById('materia-chart-text').textContent = `${completedM} de ${totalM}`;
+
+            // Créditos 
+            const remainingC = Math.max(0, totalPossibleCredits - completedC);
+            creditChart.data.datasets[0].data = [completedC, remainingC];
+            creditChart.update();
+            // Texto de progreso de créditos: "Aprobados de Total"
+            document.getElementById('credit-chart-text').textContent = `${completedC} de ${totalPossibleCredits}`;
+
+            // Actualizar los créditos visibles en cada cuatri
+            document.querySelectorAll('.cuatrimestre').forEach(div => {
+                const c = parseInt(div.dataset.cuatrimestre);
+                const cuObj = allMaterias.find(x => x.cuatrimestre === c);
+                if (cuObj){
+                    const span = div.querySelector('.cuatri-credit');
+                    if (span) span.textContent = `(${computeCreditsForCuatrimestre(cuObj)} créditos)`;
+                }
+            });
+        }
+
+        /* ============================================================
+            Utilidades: modal, eventos, persistencia
+        ============================================================ */
+        function populateCuatrimestreSelect(){
+            const select = document.getElementById('materia-cuatrimestre');
+            select.innerHTML = '';
+            // El máximo de cuatrimestres ahora es dinámico
+            const maxCuatri = allMaterias.reduce((max, c) => Math.max(max, c.cuatrimestre), 1); 
+
+            for (let i=1;i<=maxCuatri;i++){
+                const o = document.createElement('option');
+                o.value = i; o.textContent = `Cuatrimestre ${i}`;
+                select.appendChild(o);
+            }
+        }
+
+        /* Modal open/close para add/edit */
+        function openModal(mode, materia = null){
+            // Asegurar que el select esté poblado con el número actual de cuatrimestres
+            populateCuatrimestreSelect();
+                
+            const modal = document.getElementById('materia-modal');
+            const title = document.getElementById('modal-title');
+            const form = document.getElementById('materia-form');
+
+            form.reset();
+            document.getElementById('materia-old-code').value = '';
+
+            const materiaGradeInput = document.getElementById('materia-grade');
+            const materiaStatusSelect = document.getElementById('materia-status');
+            const materiaCodeInput = document.getElementById('materia-code');
+
+            if (mode === 'add'){
+                title.innerHTML = '<i class="fas fa-book"></i> Añadir Nueva Materia';
+                document.getElementById('materia-cuatrimestre').value = allMaterias.length > 0 ? allMaterias[allMaterias.length - 1].cuatrimestre : 1;
+                materiaStatusSelect.value = 'pendiente';
+                materiaGradeInput.disabled = true; 
+                materiaCodeInput.disabled = false; // Asegurar que sea editable en Add
+            } else if (mode === 'edit' && materia){
+                title.innerHTML = '<i class="fas fa-edit"></i> Editar Materia';
+                document.getElementById('materia-old-code').value = materia.code;
+                materiaCodeInput.value = materia.code;
+                document.getElementById('materia-name').value = materia.name;
+                document.getElementById('materia-credits').value = materia.credits;
+                document.getElementById('materia-cuatrimestre').value = materia.cuatrimestre || 1;
+                materiaStatusSelect.value = materia.status || 'pendiente';
+                materiaGradeInput.value = materia.grade || 0;
+                materiaGradeInput.disabled = materia.status !== 'completada'; 
+                materiaCodeInput.disabled = true; // No permitir cambiar el código en edición
+            }
+            modal.style.display = 'block';
+        }
+
+        function closeModal(){ document.getElementById('materia-modal').style.display = 'none'; }
+
+        /* Submit modal -> agregar o editar */
+        document.getElementById('materia-form').addEventListener('submit', function(e){
+            e.preventDefault();
+            // Recuperar oldCode del hidden field, no del input de código
+            const oldCode = document.getElementById('materia-old-code').value; 
+                 
+            // Si estamos en modo edición, el código es el original, si no, es el nuevo
+            const codeInput = document.getElementById('materia-code');
+            const code = oldCode && codeInput.disabled ? oldCode : codeInput.value.trim().toUpperCase();
+
+            const name = document.getElementById('materia-name').value.trim();
+            const credits = parseInt(document.getElementById('materia-credits').value) || 3;
+            const cuatr = parseInt(document.getElementById('materia-cuatrimestre').value);
+            const status = document.getElementById('materia-status').value;
+            const grade = parseInt(document.getElementById('materia-grade').value) || 0;
+
+            if (!code || !name) { alert('Código y nombre son obligatorios'); return; }
+
+            const materiaObj = { code, name, credits, status, grade, cuatrimestre: cuatr };
+
+            // 1. Manejar la materia en la lista global (allMaterias)
+            // 1.1 Si estamos editando y el código viejo existe, removerlo
+            if (oldCode) {
+                allMaterias.forEach(c => {
+                    const idx = c.materias.findIndex(m => m.code === oldCode);
+                    if (idx !== -1) {
+                        c.materias.splice(idx, 1);
+                    }
+                });
+            }
+
+            // 1.2 Encontrar el cuatrimestre objetivo para agregar la materia
+            let cu = allMaterias.find(c => c.cuatrimestre === cuatr);
+            if (!cu) {
+                // Si el cuatrimestre no existe, se crea
+                cu = { cuatrimestre: cuatr, materias: [] };
+                allMaterias.push(cu);
+                allMaterias.sort((a,b) => a.cuatrimestre - b.cuatrimestre);
+            }
+
+            // 1.3 Agregar la materia (ya sea nueva o editada)
+            cu.materias.push(materiaObj);
+
+            // 2. Limpiar el estado guardado del código viejo si este cambió
+            if (oldCode && oldCode !== code){ 
+                 let removedDefaults = JSON.parse(localStorage.getItem('removedDefaultMaterias') || '[]'); 
+                 removedDefaults = removedDefaults.filter(rc => rc !== oldCode); 
+                 localStorage.setItem('removedDefaultMaterias', JSON.stringify(removedDefaults));
+            }
+
+            // 3. Persistencia (userMaterias)
+            saveUserMaterias();
+
+            // 4. Refrescar
+            renderPensumFromData();
+            closeModal();
         });
-    }
 
-    // Activar edición al hacer clic en el lápiz
-    if (editButton) {
-        editButton.addEventListener('click', enableCareerEdit);
-    }
-}
+        /* Quitar modal al hacer click fuera */
+        window.addEventListener('click', (e) => {
+            const modal = document.getElementById('materia-modal');
+            if (e.target === modal) closeModal();
+        });
 
-/* Modo oscuro */
-function toggleDarkMode(){
-    document.body.classList.toggle('dark-mode');
-    const isDark = document.body.classList.contains('dark-mode');
-    localStorage.setItem('darkMode', isDark);
-    const mt = document.getElementById('mode-toggle');
-    mt.querySelector('i').className = isDark ? 'fas fa-sun' : 'fas fa-moon';
-    // Se inicializan los gráficos de nuevo para que tomen los nuevos colores de tema
-    initializeCharts(); 
-    calculatePGA();
-}
+        /* Evento: cuando cambia status en modal, habilitar grado si 'completada' */
+        document.getElementById('materia-status').addEventListener('change', function(){
+            document.getElementById('materia-grade').disabled = this.value !== 'completada';
+        });
 
-/* Guardar merito */
-function updatePointScale(type){
-    const pct = parseInt(document.getElementById(`merit-${type}-pct`).value);
-    const span = document.getElementById(`merit-${type}-points`);
-    
-    // Usar la misma función de cálculo de PGA para mantener consistencia
-    let points = gradeToPGA(pct); 
-    
-    span.textContent = points.toFixed(2);
-}
+        // Función para guardar el nombre de la carrera 
+        function saveCareerName(){
+            const headerEl = document.getElementById('career-name-display');
+            const newName = headerEl.textContent.trim();
+                
+            // Desactivar el modo de edición y guardar
+            headerEl.removeAttribute('contenteditable');
 
-document.getElementById('merit-summ-pct').addEventListener('input',()=>updatePointScale('summ'));
-document.getElementById('merit-magna-pct').addEventListener('input',()=>updatePointScale('magna'));
-document.getElementById('merit-cum-pct').addEventListener('input',()=>updatePointScale('cum'));
+            if (newName) {
+                localStorage.setItem('careerName', newName);
+            } else {
+                // Si se deja vacío, revierte al nombre por defecto (el nuevo placeholder)
+                headerEl.textContent = DEFAULT_CAREER_NAME;
+                localStorage.removeItem('careerName');
+            }
+        }
 
-function saveMeritConfig(){
-    meritConfig.summ.pct = parseInt(document.getElementById('merit-summ-pct').value) || 95;
-    meritConfig.magna.pct = parseInt(document.getElementById('merit-magna-pct').value) || 90;
-    meritConfig.cum.pct = parseInt(document.getElementById('merit-cum-pct').value) || 85;
-    meritConfig.summ.points = parseFloat(document.getElementById('merit-summ-points').textContent);
-    meritConfig.magna.points = parseFloat(document.getElementById('merit-magna-points').textContent);
-    meritConfig.cum.points = parseFloat(document.getElementById('merit-cum-points').textContent);
-    localStorage.setItem('meritConfig', JSON.stringify(meritConfig));
-    alert('Ajustes de mérito guardados');
-    calculatePGA();
-}
+        // Función para activar el modo de edición
+        function enableCareerEdit(){
+            const headerEl = document.getElementById('career-name-display');
+            headerEl.setAttribute('contenteditable', 'true');
+            headerEl.focus();
+            // Mover el cursor al final del texto para una mejor UX
+            const range = document.createRange();
+            const sel = window.getSelection();
+            range.selectNodeContents(headerEl);
+            range.collapse(false);
+            sel.removeAllRanges();
+            sel.addRange(range);
+        }
 
-/* Restaurar defaults (limpia localStorage) */
-function restoreDefaults(){
-    if (!confirm('ADVERTENCIA: ¿Borrar todas las materias (incluyendo las de ejemplo), notas y estados? Esto dejará un pensum vacío para que añadas tus propias materias. ¡Esta acción es irreversible!')) return;
-    
-    // 1. Marcar que no se carguen las materias default
-    localStorage.setItem('defaultPensum', 'removed');
-    
-    // 2. Limpiar todos los datos de materias y notas
-    localStorage.removeItem('userMateriasV3');
-    localStorage.removeItem('removedDefaultMaterias'); 
-    localStorage.removeItem('materiaStatusAndGrade'); 
-    
-    // 3. LIMPIAR Y ESTABLECER NUEVO VALOR EN EL DOM
-    localStorage.removeItem('careerName');
-    document.getElementById('career-name-display').textContent = DEFAULT_CAREER_NAME; // Establecer el placeholder visual
+        /* Botones top */
+        function setupEventListeners(){
+            document.getElementById('add-materia-button').addEventListener('click', () => openModal('add'));
+            document.getElementById('add-cuatri-button').addEventListener('click', addCuatrimestre);
+            document.getElementById('remove-cuatri-button').addEventListener('click', removeLastCuatrimestre);
+            document.getElementById('mode-toggle').addEventListener('click', toggleDarkMode);
+            document.getElementById('pdf-button').addEventListener('click', generatePDF);
+            document.getElementById('restore-button').addEventListener('click', restoreDefaults);
+            document.getElementById('save-merit-button').addEventListener('click', saveMeritConfig);
 
-    
-    location.reload();
-}
+            // Event listeners para el nombre de la carrera 
+            const careerNameEl = document.getElementById('career-name-display');
+            const editButton = document.getElementById('edit-career-button');
 
-/* Generar PDF con html2pdf (rápido, con spinner) */
-async function generatePDF(){
-    const btn = document.getElementById('pdf-button');
-    const spinner = document.getElementById('pdf-spinner');
-    btn.disabled = true; spinner.style.display = 'inline-block';
+            if (careerNameEl) {
+                // Guardar cuando se pierde el foco (blur)
+                careerNameEl.addEventListener('blur', saveCareerName);
+                        
+                // Guardar cuando se presiona Enter (previene salto de línea)
+                careerNameEl.addEventListener('keydown', function(e){
+                    if (e.key === 'Enter'){
+                        e.preventDefault();
+                        saveCareerName();
+                        careerNameEl.blur(); // Quitar el foco después de guardar
+                    }
+                });
+            }
 
-    try{
-        await new Promise(r => setTimeout(r, 120));
-        const element = document.getElementById('content-to-capture');
-        const opt = {
-            margin: 0.2,
-            filename: 'Seguimiento_Pensum.pdf',
-            image: { type: 'jpeg', quality: 0.95 },
-            html2canvas: { scale: 2, useCORS: true },
-            jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
-        };
-        await html2pdf().set(opt).from(element).save();
-    }catch(err){
-        console.error('PDF error:', err);
-        alert('Ocurrió un error generando el PDF. Intenta abrir la opción de imprimir del navegador.');
-    }finally{
-        btn.disabled = false; spinner.style.display = 'none';
-    }
-}
+            // Activar edición al hacer clic en el lápiz
+            if (editButton) {
+                editButton.addEventListener('click', enableCareerEdit);
+            }
+        }
 
-/* Llamada inicial extra: asegurar que los selects y DOM estén llenos correctamente */
-(function initialRender(){
-    // La carga inicial y el renderizado están manejados por DOMContentLoaded
-})();
+        /* Modo oscuro */
+        function toggleDarkMode(){
+            document.body.classList.toggle('dark-mode');
+            const isDark = document.body.classList.contains('dark-mode');
+            localStorage.setItem('darkMode', isDark);
+            const mt = document.getElementById('mode-toggle');
+            mt.querySelector('i').className = isDark ? 'fas fa-sun' : 'fas fa-moon';
+            // Se inicializan los gráficos de nuevo para que tomen los nuevos colores de tema
+            initializeCharts(); 
+            calculatePGA();
+        }
 
-</script>
+        /* Guardar merito */
+        function updatePointScale(type){
+            const pct = parseInt(document.getElementById(`merit-${type}-pct`).value);
+            const span = document.getElementById(`merit-${type}-points`);
+                
+            // Usar la misma función de cálculo de PGA para mantener consistencia
+            let points = gradeToPGA(pct); 
+                 
+            span.textContent = points.toFixed(2);
+        }
+
+        document.getElementById('merit-summ-pct').addEventListener('input',()=>updatePointScale('summ'));
+        document.getElementById('merit-magna-pct').addEventListener('input',()=>updatePointScale('magna'));
+        document.getElementById('merit-cum-pct').addEventListener('input',()=>updatePointScale('cum'));
+
+        function saveMeritConfig(){
+            meritConfig.summ.pct = parseInt(document.getElementById('merit-summ-pct').value) || 95;
+            meritConfig.magna.pct = parseInt(document.getElementById('merit-magna-pct').value) || 90;
+            meritConfig.cum.pct = parseInt(document.getElementById('merit-cum-pct').value) || 85;
+            meritConfig.summ.points = parseFloat(document.getElementById('merit-summ-points').textContent);
+            meritConfig.magna.points = parseFloat(document.getElementById('merit-magna-points').textContent);
+            meritConfig.cum.points = parseFloat(document.getElementById('merit-cum-points').textContent);
+            localStorage.setItem('meritConfig', JSON.stringify(meritConfig));
+            alert('Ajustes de mérito guardados');
+            calculatePGA();
+        }
+
+        /* Restaurar defaults (limpia localStorage) */
+        function restoreDefaults(){
+            if (!confirm('ADVERTENCIA: ¿Borrar todas las materias (incluyendo las de ejemplo), notas y estados? Esto dejará un pensum vacío para que añadas tus propias materias. ¡Esta acción es irreversible!')) return;
+                
+            // 1. Marcar que no se carguen las materias default
+            localStorage.setItem('defaultPensum', 'removed');
+
+            // 2. Limpiar todos los datos de materias y notas
+            localStorage.removeItem('userMateriasV3');
+            localStorage.removeItem('removedDefaultMaterias'); 
+            localStorage.removeItem('materiaStatusAndGrade'); 
+
+            // 3. LIMPIAR Y ESTABLECER NUEVO VALOR EN EL DOM
+            localStorage.removeItem('careerName');
+            document.getElementById('career-name-display').textContent = DEFAULT_CAREER_NAME; // Establecer el placeholder visual
+
+            location.reload();
+        }
+
+        /* Generar PDF con html2pdf (rápido, con spinner) */
+        async function generatePDF(){
+            const btn = document.getElementById('pdf-button');
+            const spinner = document.getElementById('pdf-spinner');
+            btn.disabled = true; spinner.style.display = 'inline-block';
+
+            try{
+                await new Promise(r => setTimeout(r, 120));
+                const element = document.getElementById('content-to-capture');
+                const opt = {
+                    margin: 0.2,
+                    filename: 'Seguimiento_Pensum.pdf',
+                    image: { type: 'jpeg', quality: 0.95 },
+                    html2canvas: { scale: 2, useCORS: true },
+                    jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
+                };
+                await html2pdf().set(opt).from(element).save();
+            }catch(err){
+                console.error('PDF error:', err);
+                alert('Ocurrió un error generando el PDF. Intenta abrir la opción de imprimir del navegador.');
+            }finally{
+                btn.disabled = false; spinner.style.display = 'none';
+            }
+        }
+        
+        /* Llamada inicial extra: asegurar que los selects y DOM estén llenos correctamente */
+        (function initialRender(){
+            // La carga inicial y el renderizado están manejados por DOMContentLoaded
+        })();
+
+    </script>
 </body>
-
 </html>
