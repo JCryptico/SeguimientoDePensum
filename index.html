@@ -1205,7 +1205,7 @@
             document.getElementById('pga-value').textContent = pga; // Puntos 4.00
             document.getElementById('pga-percentage').textContent = `${pgaPercentage}%`; // Porcentaje 0-100
         
-            updateMeritDisplay(parseFloat(pga)); // Usamos el pga flotante para la comparación de méritos
+            updateMeritDisplay(parseFloat(pgaPercentage)); // Usamos el % oficial (0-100) para la comparación de méritos
 
             // Actualizar graficos:
             const totalPossibleCredits = computeTotalPossibleCredits();
@@ -1216,31 +1216,46 @@
 
 
         /* Mostrar el texto de Merito (Añadiendo clases para el color) */
-        function updateMeritDisplay(pga){
+        
+        function updateMeritDisplay(pct){
+            // pct: índice en porcentaje (0-100)
             const meritEl = document.getElementById('merit-earned');
             meritEl.classList.remove('merit-summ', 'merit-magna', 'merit-cum');
-            meritEl.style.backgroundColor = ''; 
-            meritEl.style.color = ''; 
+            meritEl.style.backgroundColor = '';
+            meritEl.style.color = '';
 
-            if (pga >= meritConfig.summ.points){ 
-                meritEl.textContent = 'SUMMA CUM LAUDE'; 
-                meritEl.classList.add('merit-summ'); 
+            // Asegurarnos de que meritConfig tenga los valores .pct (si no, usar defaults)
+            const summPct = (meritConfig && meritConfig.summ && typeof meritConfig.summ.pct === 'number') ? meritConfig.summ.pct : 95;
+            const magnaPct = (meritConfig && meritConfig.magna && typeof meritConfig.magna.pct === 'number') ? meritConfig.magna.pct : 90;
+            const cumPct = (meritConfig && meritConfig.cum && typeof meritConfig.cum.pct === 'number') ? meritConfig.cum.pct : 85;
+
+            // Asegurar orden descendente por si el usuario ingresó valores fuera de orden
+            const thresholds = [
+                { name: 'SUMMA CUM LAUDE', pct: summPct, class: 'merit-summ' },
+                { name: 'MAGNA CUM LAUDE', pct: magnaPct, class: 'merit-magna' },
+                { name: 'CUM LAUDE', pct: cumPct, class: 'merit-cum' }
+            ];
+
+            // Ordenar desc por pct para evaluar correctamente
+            thresholds.sort((a,b) => b.pct - a.pct);
+
+            // Evaluar contra porcentaje
+            let awarded = false;
+            for (let t of thresholds){
+                if (pct >= t.pct){
+                    meritEl.textContent = t.name;
+                    meritEl.classList.add(t.class);
+                    awarded = true;
+                    break;
+                }
             }
-            else if (pga >= meritConfig.magna.points){ 
-                meritEl.textContent = 'MAGNA CUM LAUDE'; 
-                meritEl.classList.add('merit-magna'); 
-            }
-            else if (pga >= meritConfig.cum.points){ 
-                meritEl.textContent = 'CUM LAUDE'; 
-                meritEl.classList.add('merit-cum'); 
-            }
-            else {
+
+            if (!awarded){
                 meritEl.textContent = 'SIN MÉRITO';
                 meritEl.style.backgroundColor = 'gray';
                 meritEl.style.color = 'white';
             }
         }
-
         /* Actualizar datasets de gráficas y textos */
         function updateCharts(completedM, totalM, completedC, totalPossibleCredits){
             // Materias
